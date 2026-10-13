@@ -2,10 +2,11 @@ import type { StoryPackage } from '@engine';
 import { ashPawn } from './ashPawn';
 import { buildCity984 } from './city984';
 import { lighthouse } from './lighthouse';
+import { loveComedy } from './loveComedy';
 import { saltIsle } from './saltIsle';
 
 /** 우리가 쓴 오리지널 샘플 — 공개 서비스에 그대로 실어도 된다 */
-const ORIGINALS: StoryPackage[] = [saltIsle, lighthouse, ashPawn];
+const ORIGINALS: StoryPackage[] = [saltIsle, lighthouse, ashPawn, loveComedy];
 
 /**
  * 원작 IP가 있는 세계관의 팬 창작 샘플. 비공개 테스트 빌드에서만 들어간다.

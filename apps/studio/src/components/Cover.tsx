@@ -4,6 +4,7 @@
 import type { CSSProperties, ReactElement } from 'react';
 
 const GENRE_TONE: Record<string, string> = {
+  러브코미디: '#c96a8e',
   판타지: '#5a4a7a',
   미스터리: '#2f4858',
   로맨스: '#9a4a5a',

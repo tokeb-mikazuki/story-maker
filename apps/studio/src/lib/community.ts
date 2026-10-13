@@ -94,6 +94,7 @@ const SAMPLE_INFO: Record<string, { genre: string; at: number }> = {
   'sample:salt-isle': { genre: '드라마', at: Date.UTC(2026, 9, 1) },
   'sample:last-light': { genre: '미스터리', at: Date.UTC(2026, 9, 3) },
   'sample:ash-pawn': { genre: '판타지', at: Date.UTC(2026, 9, 6) },
+  'sample:love-comedy': { genre: '러브코미디', at: Date.UTC(2026, 9, 13) },
 };
 const officialSamples = () => SAMPLES.filter((s) => !isFanWork(s.meta.id));
 const sampleRecord = (pkg: StoryPackage, i: number): PublishedRecord => {
