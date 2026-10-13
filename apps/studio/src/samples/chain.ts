@@ -50,6 +50,25 @@ const CHAPTERS: Chapter[] = [...PART1, ...PART2, ...PART3];
 
 // ───────────────────────── 이벤트로 펼치기 ─────────────────────────
 
+/** 긴 문단은 문장 단위로 줄바꿈해 읽기 편하게 한다(한 줄이 대략 이 길이를 넘지 않도록) */
+const LINE_MAX = 150;
+function breakLong(para: string): string {
+  if (para.length <= LINE_MAX) return para;
+  const sentences = para.match(/[^.!?…]+[.!?…]+["”’)]*\s*|[^.!?…]+$/g) ?? [para];
+  const lines: string[] = [];
+  let cur = '';
+  for (const sent of sentences) {
+    const piece = sent.trim();
+    if (!piece) continue;
+    if (cur && cur.length + piece.length > LINE_MAX) {
+      lines.push(cur);
+      cur = piece;
+    } else cur = cur ? `${cur} ${piece}` : piece;
+  }
+  if (cur) lines.push(cur);
+  return lines.join('\n');
+}
+
 function build(): EventDef[] {
   const flat: { id: string; title?: string; text: string }[] = [];
   let n = 0;
@@ -60,7 +79,7 @@ function build(): EventDef[] {
     if (pages.length > 1 && ch.pages.length % 2 === 1) pages.splice(pages.length - 2, 2, [...pages[pages.length - 2], ...pages[pages.length - 1]]);
     pages.forEach((page, i) => {
       n += 1;
-      flat.push({ id: `p${String(n).padStart(3, '0')}`, title: undefined, text: page.join('\n') });
+      flat.push({ id: `p${String(n).padStart(3, '0')}`, title: undefined, text: page.map(breakLong).join('\n') });
     });
   }
   return flat.map((p, i) => {
