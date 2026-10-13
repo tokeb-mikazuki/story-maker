@@ -15,25 +15,29 @@ export interface ProjectRecord {
 
 const DB_NAME = 'story-workshop';
 const STORE = 'projects';
+/** 창작마당에 올린 작품(올린 시점의 사본). 서버가 생기기 전까지 이 브라우저에만 있다 */
+const PUBLISHED = 'published';
 
 let dbPromise: Promise<IDBDatabase> | undefined;
 
 function db(): Promise<IDBDatabase> {
   dbPromise ??= new Promise((resolve, reject) => {
     if (typeof indexedDB === 'undefined') throw new Error('IndexedDB 없음');
-    const req = indexedDB.open(DB_NAME, 1);
-    req.onupgradeneeded = () => req.result.createObjectStore(STORE, { keyPath: 'id' });
+    const req = indexedDB.open(DB_NAME, 2);
+    req.onupgradeneeded = () => {
+      for (const name of [STORE, PUBLISHED]) if (!req.result.objectStoreNames.contains(name)) req.result.createObjectStore(name, { keyPath: 'id' });
+    };
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error);
   });
   return dbPromise;
 }
 
-function tx<T>(mode: IDBTransactionMode, fn: (s: IDBObjectStore) => IDBRequest<T>): Promise<T> {
+function tx<T>(mode: IDBTransactionMode, fn: (s: IDBObjectStore) => IDBRequest<T>, store = STORE): Promise<T> {
   return db().then(
     (d) =>
       new Promise<T>((resolve, reject) => {
-        const req = fn(d.transaction(STORE, mode).objectStore(STORE));
+        const req = fn(d.transaction(store, mode).objectStore(store));
         req.onsuccess = () => resolve(req.result);
         req.onerror = () => reject(req.error);
       }),
@@ -91,10 +95,50 @@ export const projects = {
     }
     return guest.length;
   },
+  /** 게스트 작업 하나를 계정으로 옮긴다(창작마당에 올릴 때) */
+  setOwner: async (id: string, ownerId: string) => {
+    const r = await projects.get(id);
+    if (!r || r.ownerId) return;
+    const rec = { ...r, ownerId };
+    memory.set(id, rec);
+    await withFallback(
+      () => tx('readwrite', (s) => s.put(rec)).then(() => undefined),
+      () => undefined,
+    );
+  },
   remove: (id: string) => {
     memory.delete(id);
     return withFallback(
       () => tx('readwrite', (s) => s.delete(id)).then(() => undefined),
+      () => undefined,
+    );
+  },
+};
+
+/** 창작마당 작품 저장소. 레코드 모양은 community.ts가 정한다 */
+const publishedMemory = new Map<string, { id: string }>();
+export const publishedStore = {
+  list: <T extends { id: string }>() =>
+    withFallback(
+      () => tx<T[]>('readonly', (s) => s.getAll(), PUBLISHED),
+      () => [...publishedMemory.values()] as T[],
+    ),
+  get: <T extends { id: string }>(id: string) =>
+    withFallback(
+      () => tx<T | undefined>('readonly', (s) => s.get(id), PUBLISHED),
+      () => publishedMemory.get(id) as T | undefined,
+    ),
+  put: (rec: { id: string }) => {
+    publishedMemory.set(rec.id, rec);
+    return withFallback(
+      () => tx('readwrite', (s) => s.put(rec), PUBLISHED).then(() => undefined),
+      () => undefined,
+    );
+  },
+  remove: (id: string) => {
+    publishedMemory.delete(id);
+    return withFallback(
+      () => tx('readwrite', (s) => s.delete(id), PUBLISHED).then(() => undefined),
       () => undefined,
     );
   },

@@ -50,7 +50,7 @@ async function drag(srcFn, dstFn) {
 const count = (sel) => page.$$eval(sel, (els) => els.length);
 
 try {
-  await page.goto(URL, { waitUntil: 'networkidle0' });
+  await page.goto(URL + '#/studio', { waitUntil: 'networkidle0' });
   await page.evaluate(() => [...document.querySelectorAll('.card.sample button')].find((b) => b.textContent.includes('편집기에서 열기'))?.click());
   await sleep(800);
   const base = page.url().replace(/#.*/, '') + '#/edit/' + page.url().split('#/edit/')[1].split('/')[0];

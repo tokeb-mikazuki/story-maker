@@ -1,17 +1,27 @@
 import type { Runner, RunState, StoryPackage } from '@engine';
 import { type CSSProperties, useEffect, useMemo, useState } from 'react';
+import { worksApi } from '../lib/community';
 import { ask } from '../lib/dialog';
+import { href } from '../lib/router';
 import { LocalMetaStore, projects, saves } from '../lib/storage';
 import { Player } from '../player/Player';
-import { SAMPLES } from '../samples';
+import { SAMPLES, isFanWork } from '../samples';
 
-export function PlayPage({ id }: { id: string }) {
-  const [pkg, setPkg] = useState<StoryPackage | null>();
+/** published: 창작마당에 올라간 사본을 플레이(#/play/id/w). 아니면 샘플 → 내 작업 → 창작마당 순으로 찾는다 */
+export function PlayPage({ id, published }: { id: string; published?: boolean }) {
+  const [found, setFound] = useState<{ pkg: StoryPackage; listed: boolean } | null>();
   useEffect(() => {
     const sample = SAMPLES.find((s) => s.meta.id === id);
-    if (sample) setPkg(sample);
-    else projects.get(id).then((r) => setPkg(r?.pkg ?? null));
-  }, [id]);
+    const fromGallery = () => worksApi.get(id).then((w) => setFound(w ? { pkg: w.pkg, listed: true } : null));
+    if (sample) setFound({ pkg: sample, listed: !isFanWork(sample.meta.id) });
+    else if (published) void fromGallery();
+    else
+      projects.get(id).then((r) => {
+        if (r) setFound({ pkg: r.pkg, listed: false });
+        else void fromGallery();
+      });
+  }, [id, published]);
+  const pkg = found === undefined ? undefined : (found?.pkg ?? null);
   if (pkg === undefined) return <div className="center-page muted">불러오는 중…</div>;
   if (pkg === null)
     return (
@@ -20,10 +30,12 @@ export function PlayPage({ id }: { id: string }) {
         <a href="#/">처음으로</a>
       </div>
     );
-  return <PlaySession pkg={pkg} />;
+  return <PlaySession pkg={pkg} listed={!!found?.listed} />;
 }
 
-function PlaySession({ pkg }: { pkg: StoryPackage }) {
+/** listed: 창작마당에 있는 작품이면 플레이 수를 세고, 돌아갈 곳도 작품 화면이 된다 */
+function PlaySession({ pkg, listed }: { pkg: StoryPackage; listed: boolean }) {
+  const back = listed ? { to: href('works', pkg.meta.id), label: '작품 정보' } : { to: href('studio'), label: '내 작업실' };
   const meta = useMemo(() => new LocalMetaStore(), []);
   const [session, setSession] = useState<{ n: number; save?: RunState }>();
   const [existing, setExisting] = useState(() => saves.load(pkg.meta.id));
@@ -37,8 +49,8 @@ function PlaySession({ pkg }: { pkg: StoryPackage }) {
     return (
       <div className="play-page" {...themed}>
         <div className="play-top">
-          <a href="#/" className="muted">
-            ← 이야기 공방
+          <a href={back.to} className="muted">
+            ← {back.label}
           </a>
           <span className="muted">{pkg.meta.title}</span>
           <button className="link" onClick={() => (setExisting(saves.load(pkg.meta.id)), setSession(undefined))}>
@@ -56,6 +68,7 @@ function PlaySession({ pkg }: { pkg: StoryPackage }) {
           }}
           onRestart={() => {
             saves.clear(pkg.meta.id);
+            if (listed) worksApi.recordPlay(pkg.meta.id);
             setSession({ n: session.n + 1 });
           }}
           onExit={() => (setExisting(undefined), setSession(undefined))}
@@ -88,6 +101,7 @@ function PlaySession({ pkg }: { pkg: StoryPackage }) {
               onClick={async () => {
                 if (existing && !existing.ended && !(await ask('진행 중인 이야기가 사라집니다. 새로 시작할까요?', '새로 시작', true))) return;
                 saves.clear(pkg.meta.id);
+                if (listed) worksApi.recordPlay(pkg.meta.id);
                 setSession({ n: 1 });
               }}
             >
@@ -176,8 +190,8 @@ function PlaySession({ pkg }: { pkg: StoryPackage }) {
             </div>
           </section>
         )}
-        <a href="#/" className="title-back">
-          ← 이야기 공방으로
+        <a href={back.to} className="title-back">
+          ← {back.label}로
         </a>
       </div>
     </div>

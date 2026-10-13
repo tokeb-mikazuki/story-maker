@@ -1,4 +1,4 @@
-// 계정 관련 공용 조각: 아바타, 상단 계정 메뉴, 사이트 상단 바.
+// 계정 관련 공용 조각: 아바타, 상단 계정 메뉴.
 
 import { useEffect, useRef, useState } from 'react';
 import { type PublicProfile, authApi, useAccount } from '../lib/auth';
@@ -64,6 +64,9 @@ export function AccountMenu({ compact }: { compact?: boolean }) {
           <a role="menuitem" href={href('u', me.id)} onClick={() => setOpen(false)}>
             내 프로필 보기
           </a>
+          <a role="menuitem" href={href('studio')} onClick={() => setOpen(false)}>
+            내 작업실
+          </a>
           <a role="menuitem" href={href('me', 'edit')} onClick={() => setOpen(false)}>
             회원정보 수정
           </a>
@@ -81,18 +84,5 @@ export function AccountMenu({ compact }: { compact?: boolean }) {
         </div>
       )}
     </div>
-  );
-}
-
-/** 홈·계정 화면 위쪽 바 */
-export function SiteBar() {
-  return (
-    <nav className="site-bar">
-      <a className="brand" href="#/">
-        <span className="brand-mark">✒</span>이야기 공방
-      </a>
-      <span className="spacer" />
-      <AccountMenu />
-    </nav>
   );
 }

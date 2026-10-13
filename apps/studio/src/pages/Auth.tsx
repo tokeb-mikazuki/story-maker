@@ -1,21 +1,19 @@
 // 로그인 · 회원가입 · 아이디 찾기 · 비밀번호 찾기(재설정)
 
 import { type FormEvent, type ReactNode, useState } from 'react';
-import { SiteBar } from '../components/Account';
 import { AuthError, authApi, checkEmail, checkLoginId, checkNickname, checkPassword, rules, useAccount } from '../lib/auth';
 import { go, href } from '../lib/router';
 
 function Shell({ title, sub, children, foot }: { title: string; sub?: ReactNode; children: ReactNode; foot?: ReactNode }) {
   return (
     <div className="auth-page">
-      <SiteBar />
-      <main className="auth-card">
+      <div className="auth-card">
         <h1>{title}</h1>
         {sub && <p className="auth-sub">{sub}</p>}
         {children}
         {foot && <div className="auth-foot">{foot}</div>}
         <p className="dev-note">개발용 계정입니다. 서버가 연결되기 전까지는 이 브라우저에만 저장됩니다.</p>
-      </main>
+      </div>
     </div>
   );
 }

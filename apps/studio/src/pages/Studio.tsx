@@ -1,8 +1,10 @@
 import type { StoryPackage } from '@engine';
 import { useEffect, useState } from 'react';
+import { PageHead } from '../components/Site';
+import { useAccount } from '../lib/auth';
 import { ask, tell } from '../lib/dialog';
 import { exportPackage, newId, parsePackage, pickFile } from '../lib/files';
-import { go } from '../lib/router';
+import { go, href } from '../lib/router';
 import { type ProjectRecord, projects, storageIsVolatile } from '../lib/storage';
 import { blankTemplate, lifeTemplate, storyTemplate } from '../lib/templates';
 import { SAMPLES, isFanWork } from '../samples';
@@ -20,10 +22,14 @@ export async function copySample(pkg: StoryPackage): Promise<void> {
   await createProject(copy);
 }
 
-export function Home() {
-  const [list, setList] = useState<ProjectRecord[]>();
+/** 내 작업실: 새로 만들기, 이 브라우저의 작업 목록, 연습용 샘플 */
+export function Studio() {
+  const me = useAccount();
+  const [all, setAll] = useState<ProjectRecord[]>();
+  // 로그인했으면 내 계정 작업과 로그인 전 작업만, 아니면 게스트 작업만
+  const list = all?.filter((p) => !p.ownerId || p.ownerId === me?.id);
   const [error, setError] = useState<string>();
-  const reload = () => projects.list().then(setList, (e) => setError(String(e)));
+  const reload = () => projects.list().then(setAll, (e) => setError(String(e)));
   useEffect(() => {
     reload();
   }, []);
@@ -48,38 +54,21 @@ export function Home() {
   };
 
   return (
-    <div className="home">
-      <header className="home-hero">
-        <h1>이야기 공방</h1>
-        <p>선택으로 흘러가는 이야기를 만드는 도구. 한 번의 사건부터 0세에서 마지막 날까지의 인생까지 — 변수, 아이템, 상태, 확률, 엔딩을 마음대로 설계하세요.</p>
-      </header>
-
-      <section className="home-section">
-        <h2>샘플로 체험하기</h2>
-        <div className="cards">
-          {SAMPLES.map((s) => (
-            <div key={s.meta.id} className="card sample">
-              <div className="card-kind">
-                {s.settings.mode === 'life' ? '인생형' : '이야기형'}
-                {isFanWork(s.meta.id) && <span className="fan-badge" title="원작 IP가 있는 세계관의 팬 창작입니다. 공개 배포 빌드에서는 빠집니다.">팬 창작 · 공개 배포 전 제외</span>}
-              </div>
-              <h3>{s.meta.title}</h3>
-              <p>{s.meta.description}</p>
-              <div className="card-meta">
-                이벤트 {s.events.length} · 엔딩 {s.endings.length} · 도전과제 {s.achievements?.length ?? 0}
-              </div>
-              <div className="card-actions">
-                <a className="btn primary" href={`#/play/${encodeURIComponent(s.meta.id)}`}>
-                  ▶ 플레이
-                </a>
-                <button className="btn" onClick={() => copySample(s)}>
-                  편집기에서 열기
-                </button>
-              </div>
-            </div>
-          ))}
+    <div className="page studio-page">
+      <PageHead kicker="내 작업실" title="쓰던 원고를 펼치세요">
+        한 번의 사건부터 0세에서 마지막 날까지의 인생까지 — 변수, 아이템, 상태, 확률, 엔딩을 마음대로 설계하세요. 완성한 작품은 편집기의 「내보내기」에서 창작마당에 올릴 수 있습니다.
+      </PageHead>
+      {!me && (
+        <div className="claim-box">
+          <div>
+            <strong>로그인하면 작품을 창작마당에 올릴 수 있어요</strong>
+            <small>로그인하지 않고 만든 작업도 나중에 마이페이지에서 내 계정으로 옮길 수 있습니다.</small>
+          </div>
+          <a className="btn primary" href={href('login')}>
+            로그인
+          </a>
         </div>
-      </section>
+      )}
 
       <section className="home-section">
         <h2>새로 만들기</h2>
@@ -104,7 +93,7 @@ export function Home() {
       </section>
 
       <section className="home-section">
-        <h2>내 프로젝트</h2>
+        <h2>{me ? `${me.nickname} 님의 작업` : '내 작업'}</h2>
         {error && <p className="error-text">저장소를 열 수 없습니다: {error}</p>}
         {list && storageIsVolatile && (
           <p className="warn-box">이 환경에서는 브라우저 저장소를 쓸 수 없어, 프로젝트가 이 탭을 닫으면 사라집니다. 작업한 내용은 '내보내기'로 꼭 받아 두세요.</p>
@@ -143,7 +132,35 @@ export function Home() {
           ))}
         </div>
       </section>
-      <footer className="home-foot muted small">모든 프로젝트는 이 브라우저 안에만 저장됩니다. 다른 기기로 옮기려면 '내보내기'로 파일을 받아 두세요.</footer>
+      <section className="home-section">
+        <h2>샘플로 연습하기</h2>
+        <p className="muted small">샘플을 편집기에서 열면 사본이 만들어져 마음껏 고쳐 볼 수 있어요.</p>
+        <div className="cards">
+          {SAMPLES.map((s) => (
+            <div key={s.meta.id} className="card sample">
+              <div className="card-kind">
+                {s.settings.mode === 'life' ? '인생형' : '이야기형'}
+                {isFanWork(s.meta.id) && <span className="fan-badge" title="원작 IP가 있는 세계관의 팬 창작입니다. 공개 배포 빌드에서는 빠집니다.">팬 창작 · 공개 배포 전 제외</span>}
+              </div>
+              <h3>{s.meta.title}</h3>
+              <p>{s.meta.description}</p>
+              <div className="card-meta">
+                이벤트 {s.events.length} · 엔딩 {s.endings.length} · 도전과제 {s.achievements?.length ?? 0}
+              </div>
+              <div className="card-actions">
+                <a className="btn primary" href={`#/play/${encodeURIComponent(s.meta.id)}`}>
+                  ▶ 플레이
+                </a>
+                <button className="btn" onClick={() => copySample(s)}>
+                  편집기에서 열기
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <p className="home-foot muted small">작업 원고는 이 브라우저 안에만 저장됩니다. 다른 기기로 옮기려면 '내보내기'로 파일을 받아 두세요.</p>
     </div>
   );
 }

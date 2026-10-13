@@ -1,7 +1,12 @@
 // 내보내기: 완성한 이야기를 어디로 보낼지 정하는 곳. 왼쪽 메뉴 작업대에서 연다.
 
-import { useState } from 'react';
-import { tell } from '../../lib/dialog';
+import { useEffect, useState } from 'react';
+import { useAccount } from '../../lib/auth';
+import { useCommunityVersion, worksApi } from '../../lib/community';
+import { ask, tell } from '../../lib/dialog';
+import { GENRES } from '../../lib/ranking';
+import { href } from '../../lib/router';
+import { projects } from '../../lib/storage';
 import { exportPackage, safeFilename } from '../../lib/files';
 import { useEditor } from '../context';
 import { Section } from '../fields';
@@ -57,12 +62,7 @@ export function ExportSection() {
             </li>
           ))}
         </ul>
-        <div className="export-actions">
-          <button type="button" className="btn primary" disabled title="창작마당이 열리면 쓸 수 있어요">
-            창작마당에 올리기
-          </button>
-          <span className="muted small">{ready ? '올릴 준비는 끝났어요. ' : ''}창작마당은 아직 준비 중이에요. 열리면 여기에서 바로 올릴 수 있어요.</span>
-        </div>
+        <PublishBox ready={ready} />
       </Section>
 
       <Section title="파일로 내보내기" topic="share">
@@ -94,5 +94,110 @@ export function ExportSection() {
         </div>
       </Section>
     </>
+  );
+}
+
+type PublishState = { ownerId?: string; published?: { ownerId: string; genre: string; tags: string[]; updatedAt: number } };
+
+/** 창작마당 올리기·새 버전·내리기 */
+function PublishBox({ ready }: { ready: boolean }) {
+  const { pkg } = useEditor();
+  const me = useAccount();
+  const v = useCommunityVersion();
+  const [state, setState] = useState<PublishState>();
+  const [genre, setGenre] = useState('');
+  const [tags, setTags] = useState('');
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    let live = true;
+    void Promise.all([projects.get(pkg.meta.id), worksApi.published(pkg.meta.id)]).then(([rec, pub]) => {
+      if (!live) return;
+      setState({ ownerId: rec?.ownerId, published: pub });
+      if (pub) {
+        setGenre((g) => g || pub.genre);
+        setTags((t) => t || pub.tags.join(', '));
+      } else setTags((t) => t || (pkg.meta.tags ?? []).join(', '));
+    });
+    return () => {
+      live = false;
+    };
+  }, [pkg.meta.id, v, me?.id]);
+
+  if (!state) return null;
+  if (!me)
+    return (
+      <div className="export-actions">
+        <a className="btn primary" href={href('login')}>
+          로그인하고 올리기
+        </a>
+        <span className="muted small">창작마당에 올리려면 로그인이 필요해요. 지금 작업은 로그인한 뒤 마이페이지에서 내 계정으로 옮길 수 있어요.</span>
+      </div>
+    );
+  if (pkg.meta.id.startsWith('sample:'))
+    return <p className="muted small">샘플 원본은 올릴 수 없어요. 홈의 「편집기에서 열기」로 사본을 만들어 고친 뒤 올려 주세요.</p>;
+  if ((state.ownerId && state.ownerId !== me.id) || (state.published && state.published.ownerId !== me.id))
+    return <p className="muted small">다른 계정의 작업이라 이 계정으로는 올릴 수 없어요.</p>;
+
+  const pub = state.published;
+  const tagList = tags
+    .split(/[,#]/)
+    .map((t) => t.trim())
+    .filter(Boolean)
+    .slice(0, 8);
+  const publish = async () => {
+    setBusy(true);
+    try {
+      if (!state.ownerId) await projects.setOwner(pkg.meta.id, me.id);
+      await worksApi.publish(pkg, me.id, { genre, tags: tagList });
+      void tell(pub ? '창작마당의 작품을 지금 버전으로 바꿨어요. 별점과 플레이 수는 그대로예요.' : '창작마당에 올렸어요! 작품 페이지에서 확인해 보세요.');
+    } catch (e) {
+      void tell((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="publish-box">
+      <div className="publish-fields">
+        <label>
+          <span>장르</span>
+          <select value={genre} onChange={(e) => setGenre(e.target.value)}>
+            <option value="">고르세요</option>
+            {GENRES.map((g) => (
+              <option key={g}>{g}</option>
+            ))}
+          </select>
+        </label>
+        <label className="grow">
+          <span>태그 (쉼표로 구분, 8개까지)</span>
+          <input value={tags} onChange={(e) => setTags(e.target.value)} placeholder="예: 단편, 반전, 잔잔함" />
+        </label>
+      </div>
+      <div className="export-actions">
+        <button type="button" className="btn primary" disabled={!ready || !genre || busy} onClick={publish}>
+          {busy ? '올리는 중…' : pub ? '새 버전으로 바꾸기' : '창작마당에 올리기'}
+        </button>
+        {pub && (
+          <>
+            <a className="btn" href={href('works', pkg.meta.id)} target="_blank" rel="noreferrer">
+              작품 페이지
+            </a>
+            <button
+              type="button"
+              className="btn danger"
+              onClick={async () => {
+                if (await ask('창작마당에서 내릴까요? 받은 별점과 플레이 수도 함께 사라집니다.', '내리기', true)) await worksApi.unpublish(pkg.meta.id, me.id);
+              }}
+            >
+              내리기
+            </button>
+          </>
+        )}
+        <span className="muted small">
+          {!ready ? '위 항목을 먼저 갖춰 주세요.' : !genre ? '장르를 골라 주세요.' : pub ? `공개 중 · 마지막 반영 ${new Date(pub.updatedAt).toLocaleString('ko-KR')}` : '올리면 누구나 플레이하고 별점을 남길 수 있어요.'}
+        </span>
+      </div>
+    </div>
   );
 }

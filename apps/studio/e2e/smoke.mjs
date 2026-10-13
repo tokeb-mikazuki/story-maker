@@ -69,7 +69,7 @@ async function playToEnd(label, maxSteps = 400) {
 
 try {
   // 1. 홈
-  await page.goto(URL, { waitUntil: 'networkidle0' });
+  await page.goto(URL + '#/studio', { waitUntil: 'networkidle0' });
   await shot('01_home');
   log('홈', await page.$eval('h1', (e) => e.textContent));
 
@@ -110,7 +110,7 @@ try {
   await shot('07_lighthouse_end');
 
   // 4. 에디터: 샘플을 복사해서 열기
-  await page.goto(URL, { waitUntil: 'networkidle0' });
+  await page.goto(URL + '#/studio', { waitUntil: 'networkidle0' });
   await clickText('.card.sample button', '편집기에서 열기');
   await sleep(800);
   await shot('08_editor_flow');
@@ -192,7 +192,7 @@ try {
   await sleep(200);
 
   // 5. 새 인생형 프로젝트 → 테스트 플레이 끝까지
-  await page.goto(URL, { waitUntil: 'networkidle0' });
+  await page.goto(URL + '#/studio', { waitUntil: 'networkidle0' });
   await clickText('.card.new', '인생형');
   await sleep(800);
   await clickText('button', '테스트 플레이');

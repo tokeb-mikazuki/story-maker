@@ -168,7 +168,7 @@ export function Editor({ projectId, section = 'flow', item }: { projectId: strin
     <EditorContext.Provider value={api}>
       <div className="editor">
         <header className="topbar">
-          <a className="brand" href="#/">
+          <a className="brand" href="#/studio" title="내 작업실로">
             <span className="brand-mark">✒</span>이야기 공방
           </a>
           <span className="project-title">{pkg.meta.title}</span>

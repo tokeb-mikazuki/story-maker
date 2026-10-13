@@ -301,7 +301,11 @@ export const authApi = {
 
 // ───────────────────────── 작품 제작자 표시 ─────────────────────────
 
-/** 작품에 표시할 제작자. 지금은 모두 Developer */
-export function authorOf(_meta?: { author?: string }): { name: string; href: string; profile: PublicProfile } {
-  return { name: DEVELOPER.nickname, href: `#/u/${DEVELOPER.id}`, profile: DEVELOPER };
+/** 목록 화면에서 쓰는 동기 조회. 탈퇴한 계정은 자리표시 프로필을 돌려준다 */
+export function profileOf(id: string): PublicProfile {
+  if (id === DEVELOPER.id) return DEVELOPER;
+  const a = accounts().find((x) => x.id === id);
+  return a ? toPublic(a) : { id, nickname: '탈퇴한 사용자', bio: '', avatar: { emoji: '·', color: '#9a9184' }, createdAt: 0 };
 }
+
+export const isGoneProfile = (p: PublicProfile) => p.createdAt === 0 && p.id !== DEVELOPER.id;

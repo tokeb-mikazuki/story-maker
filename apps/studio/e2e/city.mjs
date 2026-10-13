@@ -16,7 +16,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const shot = (n) => page.screenshot({ path: join(OUT, `${n}.png`) });
 const log = (...a) => console.log('•', ...a);
 
-await page.goto(URL, { waitUntil: 'networkidle0' });
+await page.goto(URL + '#/studio', { waitUntil: 'networkidle0' });
 const card = await page.evaluate(() => {
   const c = [...document.querySelectorAll('.card.sample')].find((x) => x.textContent.includes('날개 아래, 984'));
   return c ? c.innerText.replace(/\s+/g, ' ').slice(0, 160) : null;
@@ -84,7 +84,7 @@ log('본 장면:', [...seen].join(', '));
 log('엔딩:', await page.$eval('.scene-end', (e) => e.innerText.replace(/\s+/g, ' ').slice(0, 500)).catch(() => '(없음)'));
 
 // 편집기에서 열기
-await page.goto(URL, { waitUntil: 'networkidle0' });
+await page.goto(URL + '#/studio', { waitUntil: 'networkidle0' });
 await page.evaluate(() => [...document.querySelectorAll('.card.sample')].find((x) => x.textContent.includes('날개 아래, 984')).querySelector('button').click());
 await sleep(800);
 await page.goto(page.url().replace(/#\/edit\/([^/]+).*/, '#/edit/$1/events/career'));

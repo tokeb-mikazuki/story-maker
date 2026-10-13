@@ -29,7 +29,7 @@ const overflow = () =>
   });
 
 await page.setViewport({ width: 1280, height: 800 });
-await page.goto(URL, { waitUntil: 'networkidle0' });
+await page.goto(URL + '#/studio', { waitUntil: 'networkidle0' });
 await page.screenshot({ path: join(OUT, '00_home.png'), fullPage: true });
 await page.evaluate(() => [...document.querySelectorAll('.card.sample button')].find((b) => b.textContent.includes('편집기에서 열기'))?.click());
 await sleep(800);
