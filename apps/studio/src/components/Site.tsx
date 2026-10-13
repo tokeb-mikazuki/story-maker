@@ -128,7 +128,7 @@ export function RatingText({ w }: { w: Pick<WorkSummary, 'avg' | 'ratingCount'> 
 
 // ───────────────────────── 작품 카드 ─────────────────────────
 
-export { BookCover, Thumb, genreTone } from './Cover';
+export { Thumb, genreTone } from './Cover';
 
 // ───────────────────────── 시간 ─────────────────────────
 

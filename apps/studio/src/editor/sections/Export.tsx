@@ -7,7 +7,7 @@ import { ask, tell } from '../../lib/dialog';
 import { GENRES } from '../../lib/ranking';
 import { href } from '../../lib/router';
 import { projects } from '../../lib/storage';
-import { BookCover, Thumb } from '../../components/Cover';
+import { Thumb } from '../../components/Cover';
 import { exportPackage, imageToDataUrl, pickFile, safeFilename } from '../../lib/files';
 import { useEditor } from '../context';
 import { Section, uniqueId } from '../fields';
@@ -236,18 +236,11 @@ function CoverPicker() {
     <div className="cover-picker">
       <div className="cover-preview">
         <Thumb w={{ id: pkg.meta.id, genre: '기타', cover: current?.src }} />
-        <div className="cover-preview-row">
-          <BookCover w={{ id: pkg.meta.id, genre: '기타', cover: current?.src }} />
-          <small className="muted">
-            목록·배너에는 가로(16:9), 순위 줄에는 세로(2:3)로 잘려 보여요.
-            <br />
-            {current ? `이미지 ID: ${current.id}` : '표지 없음 · 기본 무늬'}
-          </small>
-        </div>
+        <small className="muted">{current ? `이미지 ID: ${current.id}` : '표지 없음 · 기본 무늬'}</small>
       </div>
       <div className="cover-controls">
         <p className="muted small">
-          창작마당의 작품 카드와 큰 배너, 플레이 첫 화면에 깔리는 그림이에요. 제목은 사이트가 그림 위에 따로 얹으니 그림에 넣지 않아도 돼요. 가로 16:9 비율(예: 1600×900)이 가장 잘 맞고, 중요한 부분은 가운데 쪽에 두세요. 다른 비율은 가운데를 기준으로 잘라서 채웁니다.
+          창작마당의 작품 카드와 작품 화면, 플레이 첫 화면에 깔리는 그림이에요. 제목은 사이트가 그림 위에 따로 얹으니 그림에 넣지 않아도 돼요. 가로 16:9 비율(예: 1600×900)이 가장 잘 맞고, 중요한 부분은 가운데 쪽에 두세요. 다른 비율은 가운데를 기준으로 잘라서 채웁니다.
         </p>
         <div className="export-actions">
           <button type="button" className="btn primary" onClick={upload} disabled={busy}>

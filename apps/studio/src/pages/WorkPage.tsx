@@ -1,9 +1,9 @@
-// 창작마당 작품 상세: 빌보드(배경 그림·소개·플레이) + 작품 정보 + 별점과 감상 + 관련 작품 줄.
+// 창작마당 작품 상세: 표지·소개·통계, 플레이, 별점과 한 줄 감상.
 
 import type { StoryPackage } from '@engine';
-import { type FormEvent, useEffect, useState } from 'react';
-import { Billboard, Row, WorkCard } from '../components/Shelf';
-import { AuthorLink, RatingText, Stars, dateLong, timeAgo } from '../components/Site';
+import { type CSSProperties, type FormEvent, useEffect, useState } from 'react';
+import { WorkCard } from '../components/Shelf';
+import { AuthorLink, RatingText, Stars, Thumb, dateLong, genreTone, timeAgo } from '../components/Site';
 import { useAccount } from '../lib/auth';
 import { type WorkSummary, useCommunityVersion, useWorks, worksApi } from '../lib/community';
 import { ask } from '../lib/dialog';
@@ -39,57 +39,35 @@ export function WorkPage({ id }: { id: string }) {
     );
 
   const record = new LocalMetaStore().load(work.id);
-  const more = sortWorks((all ?? []).filter((w) => w.id !== work.id && w.ownerId === work.ownerId), 'popular');
-  const similar = sortWorks((all ?? []).filter((w) => w.id !== work.id && w.genre === work.genre && w.ownerId !== work.ownerId), 'popular');
+  const more = sortWorks((all ?? []).filter((w) => w.id !== work.id && w.ownerId === work.ownerId), 'popular').slice(0, 4);
+  const similar = sortWorks((all ?? []).filter((w) => w.id !== work.id && w.genre === work.genre && w.ownerId !== work.ownerId), 'popular').slice(0, 4);
 
   return (
-    <div className="work-page">
-      <Billboard
-        w={work}
-        heading="h1"
-        showDesc={false}
-        kicker={
-          <>
-            <a href={href('works')}>창작마당</a> › {work.genre}
-          </>
-        }
-        actions={
-          <>
-            <a className="nf-btn play" href={href('play', work.id, 'w')}>
-              ▶ {record?.runs ? '다시 플레이' : '플레이'}
-            </a>
-            {work.official && (
-              <button className="nf-btn info" onClick={() => copySample(work.pkg)}>
-                ✎ 편집기에서 열어 보기
-              </button>
-            )}
-          </>
-        }
-      />
+    <div className="page">
+      <nav className="crumbs">
+        <a href={href('works')}>창작마당</a>
+        <span>›</span>
+        <span>{work.genre}</span>
+      </nav>
 
-      <div className="page">
-        <section className="work-info">
-          <div className="work-info-main">
-            {record?.runs ? (
-              <div className="my-record">
-                <b>내 기록</b>
-                <span>
-                  {record.runs}회 플레이 · 엔딩 {Object.keys(record.endings).length}/{work.endings}
-                </span>
-                <i>
-                  <b style={{ width: `${work.endings ? (Object.keys(record.endings).length / work.endings) * 100 : 0}%` }} />
-                </i>
-              </div>
-            ) : null}
-            {work.description && <p className="work-desc">{work.description}</p>}
+      <header className="work-hero" style={{ '--tone': genreTone(work.genre) } as CSSProperties}>
+        <Thumb w={work} className="feature-thumb" />
+        <div className="work-hero-body">
+          <div className="work-tile-tags">
+            <span className="genre-pill" style={{ '--tone': genreTone(work.genre) } as CSSProperties}>
+              {work.genre}
+            </span>
+            <span className="mode-pill">{work.mode === 'life' ? '인생형' : '이야기형'}</span>
+            {work.tags.map((t) => (
+              <span key={t} className="tag-pill">
+                #{t}
+              </span>
+            ))}
           </div>
-          <dl className="work-side">
-            <div>
-              <dt>작가</dt>
-              <dd>
-                <AuthorLink id={work.ownerId} size={22} />
-              </dd>
-            </div>
+          <h1>{work.title}</h1>
+          <AuthorLink id={work.ownerId} size={28} />
+          {work.description && <p className="work-desc">{work.description}</p>}
+          <dl className="work-facts">
             <div>
               <dt>별점</dt>
               <dd>
@@ -97,21 +75,9 @@ export function WorkPage({ id }: { id: string }) {
               </dd>
             </div>
             <div>
-              <dt>장르</dt>
-              <dd>
-                {work.genre} · {work.mode === 'life' ? '인생형' : '이야기형'}
-              </dd>
+              <dt>플레이</dt>
+              <dd>{work.plays.toLocaleString('ko-KR')}회</dd>
             </div>
-            {work.tags.length > 0 && (
-              <div>
-                <dt>태그</dt>
-                <dd className="tag-line">
-                  {work.tags.map((t) => (
-                    <span key={t}>#{t}</span>
-                  ))}
-                </dd>
-              </div>
-            )}
             <div>
               <dt>분량</dt>
               <dd>
@@ -126,32 +92,53 @@ export function WorkPage({ id }: { id: string }) {
               </dd>
             </div>
           </dl>
-        </section>
+          <div className="work-cta">
+            <a className="btn primary big" href={href('play', work.id, 'w')}>
+              ▶ {record?.runs ? '다시 플레이' : '플레이하기'}
+            </a>
+            {work.official && (
+              <button className="btn big" onClick={() => copySample(work.pkg)}>
+                편집기에서 열어 보기
+              </button>
+            )}
+            {record?.runs ? (
+              <span className="muted small">
+                내 기록: {record.runs}회 · 엔딩 {Object.keys(record.endings).length}/{work.endings}
+              </span>
+            ) : null}
+          </div>
+        </div>
+      </header>
 
-        <Reviews work={work} />
+      <Reviews work={work} />
 
-        {more.length > 0 && (
-          <Row
-            title="이 작가의 다른 작품"
-            more={
-              <a className="more" href={href('u', work.ownerId)}>
-                프로필 ›
-              </a>
-            }
-          >
+      {more.length > 0 && (
+        <section className="section">
+          <div className="section-head">
+            <h2>이 작가의 다른 작품</h2>
+            <a className="more" href={href('u', work.ownerId)}>
+              프로필 →
+            </a>
+          </div>
+          <div className="tile-grid">
             {more.map((w) => (
               <WorkCard key={w.id} w={w} />
             ))}
-          </Row>
-        )}
-        {similar.length > 0 && (
-          <Row title={`비슷한 ${work.genre} 작품`}>
+          </div>
+        </section>
+      )}
+      {similar.length > 0 && (
+        <section className="section">
+          <div className="section-head">
+            <h2>비슷한 장르</h2>
+          </div>
+          <div className="tile-grid">
             {similar.map((w) => (
               <WorkCard key={w.id} w={w} />
             ))}
-          </Row>
-        )}
-      </div>
+          </div>
+        </section>
+      )}
     </div>
   );
 }

@@ -1,7 +1,5 @@
 // 작품 그림. 작가가 등록한 표지 이미지(meta.cover)를 깔고, 없으면 작품 ID로 정해지는 추상 무늬를 그린다.
-// - Thumb: 가로 16:9 썸네일(목록·줄·빌보드 배경)
-// - BookCover: 세로 2:3 포스터(TOP 10 줄)
-// 같은 이미지를 두 비율 모두에 쓰므로, 가운데를 기준으로 잘라서 채운다.
+// Thumb: 가로 16:9 썸네일. 비율이 다른 이미지는 가운데를 기준으로 잘라서 채운다.
 
 import type { CSSProperties, ReactElement } from 'react';
 
@@ -36,14 +34,6 @@ export function Thumb({ w, className = '' }: { w: CoverInfo; className?: string 
   return (
     <div className={`thumb ${className}`} style={{ '--tone': genreTone(w.genre) } as CSSProperties}>
       <Artwork w={w} shape="wide" />
-    </div>
-  );
-}
-
-export function BookCover({ w, size = 'md', className = '' }: { w: CoverInfo; size?: 'sm' | 'md' | 'lg'; className?: string }) {
-  return (
-    <div className={`poster ${size} ${className}`} style={{ '--tone': genreTone(w.genre) } as CSSProperties}>
-      <Artwork w={w} shape="tall" />
     </div>
   );
 }
