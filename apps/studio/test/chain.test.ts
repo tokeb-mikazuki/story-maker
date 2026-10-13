@@ -54,3 +54,16 @@ describe('껍질 세계 — 설정', () => {
     for (const k of ['괴벨스', '사상 병기', '수십억', '닻줄', '그림자', '반지하', '자기인식']) expect(all, k).toContain(k);
   });
 });
+
+describe('껍질 세계 — 협회장과 아키텍터', () => {
+  const all = chain.events.map((e) => e.text).join('\n');
+  it('협회장은 지워졌다는 사실은 알지만 그 사람은 기억하지 못한다', () => {
+    expect(all).toContain('그 이름은 제 기억에 없습니다');
+    expect(all).toContain('지워졌다는 사실만 압니다');
+    expect(all).not.toContain('누구 말씀입니까');
+  });
+  it('아키텍터는 사람을 숫자로 본다(선의의 한 줄 없음)', () => {
+    expect(all).not.toContain('새겨 넣었다');
+    expect(all).toContain('사람은 많다. 종은 하나다.');
+  });
+});
