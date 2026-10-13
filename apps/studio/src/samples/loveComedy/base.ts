@@ -17,15 +17,15 @@ export const meta = {
   author: '이야기 공방 샘플',
   version: '1.0',
   description:
-    '교칙 제47조, 「교내 이성교제를 금한다」. 벌점은 세 번이면 학생부행. 그런데 개학 첫날부터 풍기 부회장에게 걸리고, 소꿉친구는 방송으로 당신 이름을 불러 대고, 연극부 에이스는 당신을 상대역으로 점찍었습니다. 스물네 주 동안 사랑하고, 들키고, 해명하고, 또 사랑하세요. 문화제 밤까지. (60~90분 · 엔딩 16종)',
-  tags: ['장편', '샘플', '학원', '코미디', '멀티엔딩'],
+    '교칙 제47조, 「교내 이성교제를 금한다」. 벌점은 세 번이면 학생부행. 그런데 개학 첫날부터 풍기 부회장에게 걸리고, 옆집 소꿉친구는 매일 아침 당신을 깨우러 오고, 연극부 에이스는 당신을 상대역으로 점찍었고, 신문부 기자는 당신을 특종으로 점찍었습니다. 스물네 주 동안 사랑하고, 들키고, 해명하고, 또 사랑하세요. 문화제 밤까지. (남성향 러브코미디 · 60~90분 · 엔딩 16종)',
+  tags: ['장편', '샘플', '학원', '러브코미디', '남성향', '멀티엔딩'],
   cover: 'cover',
 };
 
 export const settings: Settings = {
   mode: 'story',
   calendar: { unit: 'none' },
-  player: { askName: true, defaultName: '새봄' },
+  player: { askName: true, defaultName: '도윤' },
   stages: [
     {
       id: 'term',
@@ -119,12 +119,33 @@ export const variables: VariableDef[] = [
   { id: '다정', type: 'number', initialExpr: 'randint(1, 3)', min: 0, max: 6, integer: true, group: '재주', display: { as: 'number', order: 12, notify: true } },
   { id: '배짱', type: 'number', initialExpr: 'randint(1, 3)', min: 0, max: 6, integer: true, group: '재주', display: { as: 'number', order: 13, notify: true } },
   affection('서윤호감', '한서윤', 20, '#d9628b'),
-  affection('하준호감', '도하준', 21, '#e69a3c'),
+  affection('하린호감', '송하린', 21, '#e69a3c'),
   affection('유나호감', '채유나', 22, '#a96ad6'),
-  affection('태오호감', '강태오', 23, '#4f8fb0'),
-  affection('서현호감', '백서현', 24, '#58b08b'),
-  { id: '지훈우정', name: '오지훈', type: 'number', initial: 0, min: 0, max: 6, integer: true, display: { as: 'text', order: 30, icon: '🤝', labels: [{ upTo: 1, text: '반 친구' }, { upTo: 3, text: '단짝' }, { upTo: 5, text: '믿는 친구' }, { upTo: 6, text: '베스트 프렌드' }] } },
-  { id: '마루', type: 'number', initial: 0, min: 0, max: 5, integer: true, display: { as: 'text', order: 31, icon: '🐾', labels: [{ upTo: 0, text: '경계 중' }, { upTo: 2, text: '곁눈질' }, { upTo: 4, text: '무릎에 올라옴' }, { upTo: 5, text: '집사 인정' }] } },
+  affection('서현호감', '백서현', 23, '#58b08b'),
+  {
+    id: '하준우정',
+    name: '도하준',
+    type: 'number',
+    initial: 0,
+    min: 0,
+    max: 10,
+    integer: true,
+    display: { as: 'text', order: 30, icon: '🎧', notify: '하준과의 우정 {delta}', labels: [{ upTo: 0, text: '옆 반 녀석' }, { upTo: 3, text: '친구' }, { upTo: 6, text: '절친' }, { upTo: 10, text: '평생 친구' }] },
+    description: '방송부 에이스. 남자 쪽 절친(연애 대상이 아니다)',
+  },
+  {
+    id: '태오신뢰',
+    name: '강태오',
+    type: 'number',
+    initial: 0,
+    min: 0,
+    max: 10,
+    integer: true,
+    display: { as: 'text', order: 31, icon: '📚', notify: '태오 선배와의 신뢰 {delta}', labels: [{ upTo: 0, text: '모르는 선배' }, { upTo: 3, text: '인사하는 선배' }, { upTo: 6, text: '조언을 구하는 선배' }, { upTo: 10, text: '믿고 따르는 멘토' }] },
+    description: '도서부 3학년 선배. 공부와 진로의 멘토(연애 대상이 아니다)',
+  },
+  { id: '지훈우정', name: '오지훈', type: 'number', initial: 0, min: 0, max: 6, integer: true, display: { as: 'text', order: 32, icon: '🤝', labels: [{ upTo: 1, text: '반 친구' }, { upTo: 3, text: '단짝' }, { upTo: 5, text: '믿는 친구' }, { upTo: 6, text: '베스트 프렌드' }] } },
+  { id: '마루', type: 'number', initial: 0, min: 0, max: 5, integer: true, display: { as: 'text', order: 33, icon: '🐾', labels: [{ upTo: 0, text: '경계 중' }, { upTo: 2, text: '곁눈질' }, { upTo: 4, text: '무릎에 올라옴' }, { upTo: 5, text: '집사 인정' }] } },
   { id: '진심', type: 'number', initial: 0, min: 0, max: 12, integer: true, display: { as: 'hidden' }, description: '솔직하게 마음을 보인 횟수(숨김)' },
   { id: '허세', type: 'number', initial: 0, min: 0, max: 12, integer: true, display: { as: 'hidden' }, description: '두 마음 사이에서 얼버무린 횟수(숨김)' },
   { id: '인기', type: 'number', formula: 'sum("호감")', description: '다섯 사람과의 거리를 합한 값(숨김)', display: { as: 'hidden' } },
@@ -195,9 +216,9 @@ export const triggers: TriggerDef[] = [
 
 export const endings: EndingDef[] = [
   { id: 'seoyun_love', title: '풍기 위반 1호', kind: 'good', text: '{image roof}\n"…규칙을 어긴 건 처음입니다."\n서윤은 팔의 완장을 천천히 풀어 당신 손목에 채웠습니다. 풍기위원 완장이 어울리지 않게 헐렁합니다.\n"그러니까 책임지세요. 제 첫 번째 위반 사항을."\n이듬해 3월, 교칙 제47조는 「교내 이성교제를 금한다. 단, 학생회 부회장의 서명이 있는 경우는 예외로 한다」로 개정되었습니다. 서명란에는 아직 한 사람 이름만 올라 있습니다.' },
-  { id: 'hajun_love', title: '방송실에서 온 마지막 사연', kind: 'good', text: '{image roof}\n지직. 운동장 스피커가 켜졌습니다.\n"문화제를 마치며 마지막 사연입니다. 사연의 주인은 2학년 {$이름}. 보낸 사람은 소꿉친구 도하준. 신청곡은… 우리 둘만 아는 그 노래입니다."\n운동장 전체가 돌아보는 소리가 났습니다. 하준은 헤드셋을 벗고, 처음으로 장난기 없는 얼굴로 웃었습니다.\n"이번에는 장난 아니야. 방송 사고니까 무를 수도 없어."' },
+  { id: 'harin_love', title: '옆집 창문, 불 켜진 두 번째 방', kind: 'good', text: '{image roof}\n옥상 난간 위에서 하린이 도시락통을 끌어안고 서 있었습니다. 다 식은 계란말이가 들어 있는 통입니다. 아침마다 깨우러 오던 사람이, 오늘은 먼저 와서 기다리고 있었습니다.\n"…있잖아, 나 어릴 때부터 옆집 창문만 보고 살았거든. 네 방 불이 켜져 있으면 안심이 되고, 꺼져 있으면 괜히 걱정되고." 하린이 숨을 한 번 들이쉬었다가 웃었습니다. "이제 그 창문 말고, 옆에서 보면 안 돼?"\n다음 날 아침, 현관 벨이 울렸습니다. 늘 같은 시간, 늘 같은 얼굴인데 이상하게 처음 보는 사람 같았습니다. 손을 맞잡은 채 같이 걸은 등굣길에서 하준이 멀찍이 방송용 마이크를 들었다가 슬며시 내려놓았습니다. 이번만큼은 방송하지 않기로 한 모양입니다.' },
   { id: 'yuna_love', title: '커튼콜은 두 사람에게', kind: 'good', text: '{image stage}\n유나는 무대 가운데서 대사를 멈추고 객석의 당신을 똑바로 바라보았습니다. 대본에 없는 대사가 이어졌습니다.\n"주연은 한 번도 정해진 적 없었어요. 오늘 제가 정했습니다."\n막이 내리고도 박수는 한참 이어졌습니다. 연극부 단체 사진 속, 유나의 왕관 핀이 당신의 머리에 꽂혀 있습니다. 상대역 1은 이제 정식 이름이 되었습니다.' },
-  { id: 'taeo_love', title: '책갈피 두 장', kind: 'good', text: '{image library}\n태오는 오래 말이 없었습니다. 그러다 책갈피 한 장을 더 꺼내 당신 손에 쥐여 주었습니다. 같은 모양, 같은 은색, 뒷면의 같은 글씨.\n"…선배라서가 아니라. 그냥 나라서 말하는 건데."\n도서관 가장 안쪽 창가 자리에는 이제 의자가 두 개 놓여 있습니다. 사서 선생님은 못 본 척 책을 넘깁니다. 그 책은 거꾸로 들려 있습니다.' },
+  { id: 'bros', title: '사나이들의 문화제', kind: 'neutral', text: '{image roof}\n문화제가 끝난 옥상에서 하준이 캔 콜라를 던졌습니다. 태오 선배는 말없이 책 대신 캔을 받아 들었고, 지훈은 컵라면 세 개를 들고 나타났습니다.\n"야, 이번 학기 우리 셋이 네 연애사를 제일 많이 들었다." "…결과는 별로 못 봤지만." "그래도 이게 제일 길게 남는 법이야."\n하준은 방송 마이크를 쥐고 마지막 곡을 틀었습니다. 연애는 잠시 미뤄 두기로 한 네 사람이 낡은 옥상 난간에 나란히 기대어 불꽃놀이를 보았습니다. 이 우정이 평생 가리라는 건 누구도 입 밖에 내지 않았지만 모두가 알았습니다.' },
   { id: 'seohyeon_love', title: '특종: 우리 둘', kind: 'good', text: '{image press}\n다음 날 청화고 교지 1면. 사진도 헤드라인도 서현이 직접 썼습니다.\n〈특종〉 기자, 취재원과 사랑에 빠지다.\n"기자는 중립이어야 하는데… 이건 도저히 중립이 안 되더라고요."\n서현은 카메라를 내려놓고 수첩의 마지막 장을 넘겼습니다. 거기엔 당신 이름 하나만 수십 번 지워지고 다시 쓰여 있었습니다.' },
   { id: 'repeal', title: '연애 금지령, 폐지', kind: 'good', text: '{image stage}\n마이크를 잡은 당신의 손이 떨렸습니다. 운동장이 조용해졌고, 맨 앞줄에서 서윤이 완장을 쥔 채 서 있었습니다.\n"…교칙 제47조는, 마음을 막으려고 만든 게 아니라 마음을 지키려고 만든 거였다고 생각합니다. 그러니까 이제는 지킬 줄 아는 사람들에게 맡겨 주세요."\n긴 정적. 그리고 박수. 가장 먼저 박수를 친 사람은 교장 선생님이었고, 가장 늦게 박수를 친 사람은 담임 김삼순 선생님이었습니다. 눈이 붉었습니다.\n이듬해 3월 교칙집에서 제47조는 삭제되었습니다. 대신 신설된 제47조는 단 한 줄입니다. 「서로를 괴롭히지 말 것.」' },
   { id: 'friends', title: '모두의 문화제', kind: 'good', text: '{image roof}\n끝내 누구에게도 고백하지 못한 채 문화제는 끝났습니다. 그런데 이상하게 후련했습니다.\n서윤은 완장을 벗고 쓰레기를 함께 주웠고, 하준은 마이크로 당신 이름을 마지막으로 크게 외쳤고, 유나는 대본을 접어 비행기를 날렸고, 태오는 조용히 옆에서 걸었고, 서현은 사진을 한 장 찍어 주었습니다.\n사진 속 모두가 웃고 있습니다. 연애는 아니었지만, 이건 틀림없이 청춘이었습니다.' },
@@ -220,9 +241,8 @@ export const epilogue: EpilogueDef = {
       order: 10,
       lines: [
         { when: "최애 == '서윤호감' and 서윤호감 >= 5", text: '가장 가까웠던 사람은 한서윤이었습니다. 완장과 자, 그리고 아무도 모르는 귀 끝의 붉은빛.' },
-        { when: "최애 == '하준호감' and 하준호감 >= 5", text: '가장 가까웠던 사람은 도하준이었습니다. 소꿉친구라는 이름으로 오래 버틴 마음이었습니다.' },
+        { when: "최애 == '하린호감' and 하린호감 >= 5", text: '가장 가까웠던 사람은 송하린이었습니다. 옆집 창문 너머로 오래 지켜본, 아침마다 문을 두드리던 목소리.' },
         { when: "최애 == '유나호감' and 유나호감 >= 5", text: '가장 가까웠던 사람은 채유나였습니다. 어디서든 무대가 되는 사람 곁에서 당신도 조금 주인공이 되었습니다.' },
-        { when: "최애 == '태오호감' and 태오호감 >= 5", text: '가장 가까웠던 사람은 강태오였습니다. 말수는 적었지만 책장을 넘기는 속도로 마음을 말하는 사람.' },
         { when: "최애 == '서현호감' and 서현호감 >= 5", text: '가장 가까웠던 사람은 백서현이었습니다. 취재라는 핑계로 가장 많이 당신을 관찰한 사람.' },
         { when: '인기 < 5', text: '이번 학기, 마음은 아직 아무 데도 정착하지 못했습니다. 그것도 청춘의 한 가지 모양입니다.' },
       ],
@@ -248,7 +268,7 @@ export const epilogue: EpilogueDef = {
     {
       id: 'maru',
       order: 40,
-      lines: [{ when: '마루 >= 3', text: '마루는 이제 당신이 오면 먼저 꼬리를 세웁니다. 교내 길고양이 가운데 유일한 단골입니다.' }, { when: '지훈우정 >= 4', text: '지훈은 끝까지 곁에서 연애 상담을 받아 주었습니다. 수수료로 편의점 컵라면을 열두 번 받았습니다.' }],
+      lines: [{ when: '마루 >= 3', text: '마루는 이제 당신이 오면 먼저 꼬리를 세웁니다. 교내 길고양이 가운데 유일한 단골입니다.' }, { when: '하준우정 >= 5', text: '하준은 끝까지 가장 시끄러운 응원단이었습니다. 방송실 마이크로 몇 번이나 당신 이름을 불렀는지 본인도 모릅니다.' }, { when: '태오신뢰 >= 5', text: '태오 선배는 졸업식 날 당신에게 책 한 권을 건넸습니다. 첫 장에 연필로 한 줄이 적혀 있었습니다. 「네가 정한 길이 맞는 길이야.」' }, { when: '지훈우정 >= 4', text: '지훈은 끝까지 곁에서 연애 상담을 받아 주었습니다. 수수료로 편의점 컵라면을 열두 번 받았습니다.' }],
     },
   ],
   footer: '이 이야기는 여기서 끝나지만, 교칙 제47조는 계속 개정 중입니다.',
@@ -259,11 +279,12 @@ export const achievements: AchievementDef[] = [
   { id: '풍기1호', title: '풍기 위반 1호', icon: '⚠', description: '한서윤 엔딩을 보았다', when: "$엔딩 == 'seoyun_love'" },
   { id: '금지령폐지', title: '교칙 제47조 폐지', icon: '📜', description: '연애 금지령을 없앴다', when: "$엔딩 == 'repeal'" },
   { id: '모두와', title: '모두와 친구', icon: '🤝', description: '모두와 친구가 된 채 문화제를 끝냈다', when: "$엔딩 == 'friends'" },
+  { id: '남자들의우정', title: '사나이들의 문화제', icon: '🥤', description: '하준·태오·지훈과 함께 문화제를 마쳤다', when: "$엔딩 == 'bros'" },
   { id: '고양이집사', title: '공식 집사', icon: '🐾', description: '마루와 끝까지 가까워졌다', when: '마루 >= 5' },
   { id: '벌점왕', title: '풍기 벌점 최다', icon: '📛', description: '벌점이 2점 이상인 채로 끝을 맞았다', hidden: true, when: "$엔딩 != '' and 벌점 >= 2" },
   { id: '교지주인공', title: '교지 1면의 주인공', icon: '📰', description: '소문이 터져 교지 1면에 올랐다', hidden: true, when: "seen('rumor_blast')" },
   { id: '철벽', title: '무심한 척 철벽', icon: '🧱', description: '누구에게도 마음이 가지 않은 채 끝났다', hidden: true, when: "$엔딩 != '' and 인기 < 5" },
-  { id: '고백성공', title: '두근두근 성공', icon: '💞', description: '고백에 성공했다', hidden: true, when: "endingSeen('seoyun_love') or endingSeen('hajun_love') or endingSeen('yuna_love') or endingSeen('taeo_love') or endingSeen('seohyeon_love')" },
+  { id: '고백성공', title: '두근두근 성공', icon: '💞', description: '고백에 성공했다', hidden: true, when: "endingSeen('seoyun_love') or endingSeen('harin_love') or endingSeen('yuna_love') or endingSeen('seohyeon_love')" },
 ];
 
 /** 작가가 만든 일러스트(JPG). 파일에 직접 담겨 내보내기·사본에서도 그대로 따라간다 */

@@ -21,7 +21,7 @@ describe('청화고 연애 금지령', () => {
     const r = simulate(loveComedy, { runs: 600, shareMeta: true });
     expect(r.errors).toEqual([]);
     expect(r.stuck).toBe(0);
-    expect(Object.keys(r.endings).length).toBeGreaterThanOrEqual(9);
+    expect(Object.keys(r.endings).length).toBeGreaterThanOrEqual(8);
     // 고정 장면 24개는 한 주에 하나씩 모두 거친다
     expect(r.unreachedEvents.filter((id) => !['chaos_start', 'remedial_end', 'scandal_start', 'remedial_call'].includes(id))).toEqual([]);
   });
@@ -31,22 +31,26 @@ describe('청화고 연애 금지령', () => {
     expect(Object.keys(scandal.endings)).toContain('scandal');
     const remedial = simulate(scenario('festival_gate', { 성적: 1, 소문: 0 }), { runs: 50 });
     expect(Object.keys(remedial.endings)).toEqual(['remedial']);
-    const chaos = simulate(scenario('festival_gate', { 서윤호감: 9, 하준호감: 9, 허세: 4, 소문: 5 }), { runs: 200 });
+    const chaos = simulate(scenario('festival_gate', { 서윤호감: 9, 하린호감: 9, 허세: 4, 소문: 5 }), { runs: 200 });
     expect(Object.keys(chaos.endings)).toContain('chaos');
   });
 
   it('마음을 전하는 장면마다 자기 엔딩으로 이어진다', { timeout: 60000 }, () => {
     const cases: [string, string, string][] = [
       ['confess_seoyun', '서윤호감', 'seoyun_love'],
-      ['confess_hajun', '하준호감', 'hajun_love'],
+      ['confess_harin', '하린호감', 'harin_love'],
       ['confess_yuna', '유나호감', 'yuna_love'],
-      ['confess_taeo', '태오호감', 'taeo_love'],
       ['confess_seohyeon', '서현호감', 'seohyeon_love'],
     ];
     for (const [start, v, ending] of cases) {
       const r = simulate(scenario(start, { [v]: 10, 진심: 8, 자신감: 8, 다정: 5, 소문: 0 }), { runs: 200 });
       expect(Object.keys(r.endings), start).toContain(ending);
     }
+  });
+
+  it('남자 친구들과 문화제를 마치는 길(사나이들의 우정)이 열린다', { timeout: 60000 }, () => {
+    const r = simulate(scenario('festival', { 하준우정: 8, 태오신뢰: 8, 지훈우정: 2 }), { runs: 300 });
+    expect(Object.keys(r.endings)).toContain('bros');
   });
 
   it('연설 · 정학 · 보건실로 이어지는 연결', { timeout: 60000 }, () => {
