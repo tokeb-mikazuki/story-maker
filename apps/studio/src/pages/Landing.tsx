@@ -1,7 +1,7 @@
-// 홈: 소개, 인기·새 작품, 장르 바로가기, 게시판 소식.
+// 홈: 소개 + 진열대(오늘의 작품·인기·최신을 시간마다 한 장씩), 인기·새 작품, 장르 바로가기, 게시판 소식.
 
 import type { CSSProperties } from 'react';
-import { WorkCard } from '../components/Shelf';
+import { Showcase, WorkCard } from '../components/Shelf';
 import { AuthorLink, RatingText, Thumb, genreTone, timeAgo } from '../components/Site';
 import { useAccount } from '../lib/auth';
 import { boardApi, useCommunityVersion, useWorks } from '../lib/community';
@@ -62,14 +62,21 @@ export function Landing() {
             </dl>
           </div>
           {top && (
-            <a className="hero-feature" href={href('works', top.id)} aria-label={`오늘의 작품: ${top.title}`}>
-              <div className="hero-ribbon">오늘의 작품</div>
-              <Thumb w={top} className="feature-thumb" />
-              <div className="hero-feature-cap">
-                <b>{top.title}</b>
-                <RatingText w={top} />
-              </div>
-            </a>
+            <div className="showcases" aria-label="오늘의 진열대">
+              <Showcase label="오늘의 작품" picks={[{ w: top, note: <RatingText w={top} /> }]} />
+              <Showcase
+                label="인기 작품"
+                picks={popular.slice(1, 10).map((w, k) => ({
+                  w,
+                  note: (
+                    <>
+                      <b className="rank-note">인기 {k + 2}위</b> · ▶ {w.plays.toLocaleString('ko-KR')}
+                    </>
+                  ),
+                }))}
+              />
+              <Showcase label="새로 올라온 작품" delay={2500} picks={latest.slice(0, 10).map((w) => ({ w, note: <>{timeAgo(w.publishedAt)} 공개</> }))} />
+            </div>
           )}
         </div>
       </section>
@@ -83,7 +90,7 @@ export function Landing() {
             </button>
           </div>
           <div className="tile-grid">
-            {popular.slice(0, 4).map((w) => (
+            {popular.slice(0, 6).map((w) => (
               <WorkCard key={w.id} w={w} />
             ))}
           </div>

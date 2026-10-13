@@ -4,6 +4,7 @@
 // 주의: 모의 구현이라 비밀번호 찾기의 인증 코드를 화면에 그대로 보여 준다(메일 발송 없음).
 
 import { useSyncExternalStore } from 'react';
+import { local, session } from './safeStorage';
 
 export interface Avatar {
   emoji: string;
@@ -62,13 +63,13 @@ const RESETS_KEY = 'auth:resets';
 
 function read<T>(key: string, fallback: T): T {
   try {
-    const raw = localStorage.getItem(key);
+    const raw = local.getItem(key);
     return raw ? (JSON.parse(raw) as T) : fallback;
   } catch {
     return fallback;
   }
 }
-const write = (key: string, value: unknown) => localStorage.setItem(key, JSON.stringify(value));
+const write = (key: string, value: unknown) => local.setItem(key, JSON.stringify(value));
 
 const accounts = () => read<StoredAccount[]>(ACCOUNTS_KEY, []);
 const saveAccounts = (xs: StoredAccount[]) => write(ACCOUNTS_KEY, xs);
@@ -83,13 +84,13 @@ const emit = () => listeners.forEach((l) => l());
 if (typeof window !== 'undefined') window.addEventListener('storage', emit);
 
 function sessionId(): string | undefined {
-  return sessionStorage.getItem(SESSION_KEY) ?? localStorage.getItem(SESSION_KEY) ?? undefined;
+  return session.getItem(SESSION_KEY) ?? local.getItem(SESSION_KEY) ?? undefined;
 }
 
 let cache: { id?: string; stamp?: string; value: Account | null } = { value: null };
 function snapshot(): Account | null {
   const id = sessionId();
-  const stamp = localStorage.getItem(ACCOUNTS_KEY) ?? '';
+  const stamp = local.getItem(ACCOUNTS_KEY) ?? '';
   if (cache.id === id && cache.stamp === stamp) return cache.value;
   const found = id ? accounts().find((a) => a.id === id) : undefined;
   cache = { id, stamp, value: found ? strip(found) : null };
@@ -193,16 +194,16 @@ export const authApi = {
     const a = accounts().find((x) => x.loginId === loginId.trim().toLowerCase());
     // 어느 쪽이 틀렸는지 알려 주지 않는다
     if (!a || (await hash(password, a.salt)) !== a.passHash) throw new AuthError('아이디 또는 비밀번호가 맞지 않습니다');
-    sessionStorage.removeItem(SESSION_KEY);
-    localStorage.removeItem(SESSION_KEY);
-    (keep ? localStorage : sessionStorage).setItem(SESSION_KEY, a.id);
+    session.removeItem(SESSION_KEY);
+    local.removeItem(SESSION_KEY);
+    (keep ? local : session).setItem(SESSION_KEY, a.id);
     emit();
     return strip(a);
   },
 
   async logout(): Promise<void> {
-    sessionStorage.removeItem(SESSION_KEY);
-    localStorage.removeItem(SESSION_KEY);
+    session.removeItem(SESSION_KEY);
+    local.removeItem(SESSION_KEY);
     emit();
   },
 

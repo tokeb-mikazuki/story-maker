@@ -7,6 +7,7 @@ import { SAMPLES, isFanWork } from '../samples';
 import { DEVELOPER } from './auth';
 import { type Rankable } from './ranking';
 import { publishedStore } from './storage';
+import { local, session } from './safeStorage';
 
 // ───────────────────────── 변경 알림 ─────────────────────────
 
@@ -35,7 +36,7 @@ export function useCommunityVersion(): number {
 
 function read<T>(key: string, fallback: T): T {
   try {
-    const raw = localStorage.getItem(key);
+    const raw = local.getItem(key);
     return raw ? (JSON.parse(raw) as T) : fallback;
   } catch {
     return fallback;
@@ -43,7 +44,7 @@ function read<T>(key: string, fallback: T): T {
 }
 function write(key: string, value: unknown): void {
   try {
-    localStorage.setItem(key, JSON.stringify(value));
+    local.setItem(key, JSON.stringify(value));
   } catch {
     // 용량 초과 — 통계 하나 못 남겨도 화면은 계속
   }
@@ -299,8 +300,8 @@ export const boardApi = {
   view(id: string): void {
     const key = `board:viewed:${id}`;
     try {
-      if (sessionStorage.getItem(key)) return;
-      sessionStorage.setItem(key, '1');
+      if (session.getItem(key)) return;
+      session.setItem(key, '1');
     } catch {
       // 세션 저장소를 못 쓰면 매번 센다
     }

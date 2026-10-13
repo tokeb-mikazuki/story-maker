@@ -1,5 +1,5 @@
 // 작품 그림. 작가가 등록한 표지 이미지(meta.cover)를 깔고, 없으면 작품 ID로 정해지는 추상 무늬를 그린다.
-// Thumb: 가로 16:9 썸네일. 비율이 다른 이미지는 가운데를 기준으로 잘라서 채운다.
+// Thumb: 세로 A4 비율(1:1.414) 썸네일. 비율이 다른 이미지는 가운데를 기준으로 잘라서 채운다.
 
 import type { CSSProperties, ReactElement } from 'react';
 
@@ -26,14 +26,14 @@ export interface CoverInfo {
 }
 
 /** 이미지 또는 기본 무늬. 부모 상자를 꽉 채운다 */
-export function Artwork({ w, shape }: { w: CoverInfo; shape: 'wide' | 'tall' }) {
-  return w.cover ? <img className="art-fill" src={w.cover} alt="" loading="lazy" draggable={false} /> : <CoverArt seed={w.id} tone={genreTone(w.genre)} shape={shape} />;
+export function Artwork({ w }: { w: CoverInfo }) {
+  return w.cover ? <img className="art-fill" src={w.cover} alt="" loading="lazy" draggable={false} /> : <CoverArt seed={w.id} tone={genreTone(w.genre)} />;
 }
 
 export function Thumb({ w, className = '' }: { w: CoverInfo; className?: string }) {
   return (
     <div className={`thumb ${className}`} style={{ '--tone': genreTone(w.genre) } as CSSProperties}>
-      <Artwork w={w} shape="wide" />
+      <Artwork w={w} />
     </div>
   );
 }
@@ -63,8 +63,11 @@ function mix(hex: string, to: string, amount: number): string {
   return `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * amount)).join(',')})`;
 }
 
-function CoverArt({ seed, tone, shape }: { seed: string; tone: string; shape: 'wide' | 'tall' }) {
-  const [W, H] = shape === 'wide' ? [320, 180] : [200, 300];
+/** 세로 A4(1:1.414) 화면에 맞춘 무늬 */
+const W = 200;
+const H = 283;
+
+function CoverArt({ seed, tone }: { seed: string; tone: string }) {
   const h = hash(seed);
   const r = rng(h);
   // 비슷한 ID끼리 첫 값이 몰리지 않도록 몇 번 흘려보낸다
@@ -72,7 +75,7 @@ function CoverArt({ seed, tone, shape }: { seed: string; tone: string; shape: 'w
   const kind = h % 3;
   const light = (n: number) => mix(tone, '#fff3dc', n);
   const dark = (n: number) => mix(tone, '#120c08', n);
-  const gid = `g${h.toString(36)}${shape}`;
+  const gid = `g${h.toString(36)}`;
   const u = Math.min(W, H); // 크기 기준
 
   const art: ReactElement[] = [];

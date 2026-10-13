@@ -1,9 +1,10 @@
 // 브라우저 저장소. 프로젝트(패키지 + 이미지)는 용량이 커질 수 있어 IndexedDB,
-// 회차 기록·플레이 세이브는 작아서 localStorage.
+// 회차 기록·플레이 세이브는 작아서 localStorage(safeStorage로 감쌈).
 
 import type { MetaData, MetaStore, RunState, StoryPackage } from '@engine';
 import { currentAccountId } from './auth';
 import { migrateImages } from './migrate';
+import { local } from './safeStorage';
 
 export interface ProjectRecord {
   id: string;
@@ -148,7 +149,7 @@ export const publishedStore = {
 
 function readJson<T>(key: string): T | undefined {
   try {
-    const raw = localStorage.getItem(key);
+    const raw = local.getItem(key);
     return raw ? (JSON.parse(raw) as T) : undefined;
   } catch {
     return undefined;
@@ -157,7 +158,7 @@ function readJson<T>(key: string): T | undefined {
 
 function writeJson(key: string, value: unknown): void {
   try {
-    localStorage.setItem(key, JSON.stringify(value));
+    local.setItem(key, JSON.stringify(value));
   } catch {
     // 용량 초과 등 — 저장 실패해도 플레이는 계속
   }
@@ -173,14 +174,14 @@ export class LocalMetaStore implements MetaStore {
     writeJson(this.prefix + id, meta);
   }
   clear(id: string) {
-    localStorage.removeItem(this.prefix + id);
+    local.removeItem(this.prefix + id);
   }
 }
 
 export const saves = {
   load: (id: string) => readJson<RunState>(`save:${id}`),
   save: (id: string, state: RunState) => writeJson(`save:${id}`, state),
-  clear: (id: string) => localStorage.removeItem(`save:${id}`),
+  clear: (id: string) => local.removeItem(`save:${id}`),
 };
 
 /** 에디터 화면 설정(꾸러미 펼침, 묶어 보기 방식 등) */

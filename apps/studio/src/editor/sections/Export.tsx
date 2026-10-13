@@ -240,7 +240,7 @@ function CoverPicker() {
       </div>
       <div className="cover-controls">
         <p className="muted small">
-          창작마당의 작품 카드와 작품 화면, 플레이 첫 화면에 깔리는 그림이에요. 제목은 사이트가 그림 위에 따로 얹으니 그림에 넣지 않아도 돼요. 가로 16:9 비율(예: 1600×900)이 가장 잘 맞고, 중요한 부분은 가운데 쪽에 두세요. 다른 비율은 가운데를 기준으로 잘라서 채웁니다.
+          창작마당의 작품 카드와 작품 화면, 플레이 첫 화면에 깔리는 그림이에요. 제목은 사이트가 그림 위에 따로 얹으니 그림에 넣지 않아도 돼요. 세로 A4 비율 1:1.414(예: 1000×1414)가 가장 잘 맞고, 중요한 부분은 가운데 쪽에 두세요. 다른 비율은 가운데를 기준으로 잘라서 채웁니다.
         </p>
         <div className="export-actions">
           <button type="button" className="btn primary" onClick={upload} disabled={busy}>
