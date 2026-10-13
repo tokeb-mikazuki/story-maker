@@ -95,6 +95,7 @@ const SAMPLE_INFO: Record<string, { genre: string; at: number }> = {
   'sample:last-light': { genre: '미스터리', at: Date.UTC(2026, 9, 3) },
   'sample:ash-pawn': { genre: '판타지', at: Date.UTC(2026, 9, 6) },
   'sample:love-comedy': { genre: '러브코미디', at: Date.UTC(2026, 9, 13) },
+  'sample:chain': { genre: '판타지', at: Date.UTC(2026, 9, 13, 18) },
   // 팬 창작 — 공개 배포 빌드(VITE_PUBLIC_RELEASE=1)에서는 SAMPLES에서 빠지므로 여기에도 나오지 않는다
   'sample:city-984': { genre: 'SF', at: Date.UTC(2026, 9, 13, 12) },
 };
