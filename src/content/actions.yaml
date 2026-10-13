@@ -1,0 +1,219 @@
+# 성인기 월간 행동. when = 메뉴에 보이는 조건, requires = 선택 가능 조건(미충족 시 회색).
+# '평온하게 1년 보내기'는 엔진이 자동으로 추가한다.
+
+# ───────────── 직업 ─────────────
+
+- id: work.feather
+  text: 회사에 충성한다. (주 70시간)
+  when: { tag: 직업=깃털 }
+  outcome:
+    effects: [{ sp: -4 }, { virtue: { 자제: 1 } }, { tagAdd: { key: 근속, value: 1 } }]
+    text: 출근, 야근, 퇴근, 창밖의 뒷골목, 캔맥주. 둥지의 한 달은 이렇게 지나갑니다.
+
+- id: work.feather_promote
+  text: 진급 심사를 준비한다.
+  when: { all: [{ tag: 직업=깃털 }, { tagNum: { key: 근속, gte: 12 } }, { tagNum: { key: 직원등급, lte: 4 } }] }
+  check: { ability: 학식, difficulty: 3 }
+  success:
+    effects: [{ tagAdd: { key: 직원등급, value: 1 } }, { tagAdd: { key: 월급, value: 1500000 } }, { tagAdd: { key: 근속, value: -12 } }, { tagAdd: { key: 명성, value: 2 } }]
+    text: 한 등급 올라갔습니다. 월급이 오르고, 알아도 되는 비밀이 조금 늘었습니다. 알고 싶지 않았던 것들도요.
+  failure:
+    effects: [{ sp: -8 }, { tagAdd: { key: 근속, value: -6 } }]
+    text: 이번에는 떨어졌습니다. 같은 기수의 누군가가 붙었습니다.
+
+- id: work.fixer
+  text: 사무소에서 의뢰를 받는다.
+  when: { tag: 직업=해결사 }
+  check: { ability: 전투, difficulty: 1 }
+  success:
+    effects: [{ money: 900000 }, { tagAdd: { key: 실적, value: 1 } }, { sp: 2 }]
+    text: 의뢰를 깔끔하게 처리했습니다. 처리 내용은 빠짐없이 하나 협회에 보고합니다. 그게 실적이 되니까요.
+  failure:
+    effects: [{ money: 100000 }, { hp: -3 }, { sp: -4 }]
+    text: 일이 꼬였습니다. 착수금만 겨우 건졌습니다.
+
+- id: work.fixer_risky
+  text: 위험한 의뢰를 받는다. (늦은 밤까지)
+  when: { tag: 직업=해결사 }
+  check: { ability: 전투, difficulty: 3 }
+  success:
+    effects: [{ money: 2500000 }, { tagAdd: { key: 실적, value: 2 } }, { tagAdd: { key: 명성, value: 1 } }, { addTag: 이번달:야간 }]
+    text: 고위험 의뢰는 등급 심사에 크게 반영됩니다. 보수도요. 일은 끝났지만, 시계를 보니 꽤 늦었습니다.
+  failure:
+    effects: [{ hp: -7 }, { sp: -8 }, { addTag: 이번달:야간 }]
+    text: 상대가 생각보다 강했습니다. 피를 흘리며 빠져나왔을 때, 시계는 새벽 세 시를 향하고 있었습니다.
+
+- id: work.fixer_promote
+  text: 하나 협회에 승급 심사를 신청한다.
+  when: { all: [{ tag: 직업=해결사 }, { tagNum: { key: 실적, gte: 4 } }, { tagNum: { key: 해결사등급, gte: 2 } }] }
+  check: { ability: 전투, difficulty: 2, bonus: 10 }
+  success:
+    effects: [{ tagAdd: { key: 해결사등급, value: -1 } }, { tagAdd: { key: 실적, value: -4 } }, { tagAdd: { key: 명성, value: 3 } }, { sp: 10 }]
+    text: 새 등록증이 나왔습니다. 숫자 하나가 줄었을 뿐인데, 사람들이 당신을 보는 눈이 달라졌습니다.
+  failure:
+    effects: [{ tagAdd: { key: 실적, value: -2 } }, { sp: -6 }]
+    text: "\"실적은 충분한데, 고위험 의뢰를 피한 흔적이 있군요.\" 심사관은 서류를 덮었습니다."
+
+- id: work.gang
+  text: 조직의 일을 한다.
+  when: { tag: 직업=조직원 }
+  check: { ability: 전투, difficulty: 1 }
+  success:
+    effects: [{ money: 400000 }, { tagAdd: { key: 조직공헌, value: 1 } }, { sin: 분노 }]
+    text: 경비, 수금, 그리고 말하지 않는 편이 나은 일들. 형님이 당신 어깨를 두드렸습니다.
+  failure:
+    effects: [{ hp: -4 }, { sp: -4 }]
+    text: 다른 조직과 시비가 붙었습니다. 이긴 건지 진 건지 모르겠습니다.
+
+- id: work.gang_promote
+  text: 윗선에 이름을 알린다.
+  when: { all: [{ tag: 직업=조직원 }, { tagNum: { key: 조직공헌, gte: 6 } }] }
+  check: { ability: 화술, difficulty: 2 }
+  success:
+    effects: [{ tagAdd: { key: 조직서열, value: 1 } }, { tagAdd: { key: 월급, value: 500000 } }, { tagAdd: { key: 조직공헌, value: -6 } }, { tagAdd: { key: 명성, value: 2 } }]
+    text: 당신은 한 계단 올라섰습니다. 아래에서 당신에게 고개를 숙이는 사람이 생겼습니다.
+  failure:
+    effects: [{ tagAdd: { key: 조직공헌, value: -3 } }, { hp: -3 }]
+    text: 말이 너무 많았습니다. 위에서는 말 많은 놈을 좋아하지 않습니다.
+
+- id: work.workshop
+  text: 공방에서 망치질을 한다.
+  when: { tag: 직업=공방견습 }
+  outcome:
+    effects: [{ tagAdd: { key: 숙련, value: 1 } }, { virtue: { 자제: 1 } }, { sp: -1 }]
+    text: 쇠를 두드리는 소리가 하루를 채웠습니다.
+
+- id: work.workshop_exam
+  text: 트레스 협회 장인 시험을 본다.
+  when: { all: [{ tag: 직업=공방견습 }, { tagNum: { key: 숙련, gte: 8 } }] }
+  check: { ability: 기술, difficulty: 3 }
+  success:
+    effects: [{ addTag: 직업=공방장인 }, { tagAdd: { key: 월급, value: 1500000 } }, { tagAdd: { key: 명성, value: 4 } }, { sp: 12 }]
+    text: 합격. 이제 당신 이름으로 만든 물건을 팔 수 있습니다. 첫 작품에 무엇을 새길지, 밤새 고민했습니다.
+  failure:
+    effects: [{ tagAdd: { key: 숙련, value: -3 } }, { sp: -8 }]
+    text: "\"어떻게 고치면 통과시켜 줄 수 있다\"는 조언을 들었습니다. 트레스 협회는 의외로 친절합니다. 불합격은 불합격이지만."
+
+- id: work.workshop_master
+  text: 공방에서 주문을 받는다.
+  when: { tag: 직업=공방장인 }
+  check: { ability: 기술, difficulty: 2 }
+  success:
+    effects: [{ money: 800000 }, { tagAdd: { key: 명성, value: 1 } }]
+    text: 단골 해결사가 늘고 있습니다. 당신이 만든 무기를 든 사람이, 어디선가 살아남고 있습니다.
+  failure:
+    effects: [{ sp: -3 }]
+    text: 이번 달은 손님이 적었습니다.
+
+- id: work.civilian
+  text: 가게 일을 한다.
+  when: { tag: 직업=소시민 }
+  outcome:
+    effects: [{ sp: 1 }, { virtue: { 자제: 1 } }]
+    text: 평범한 한 달이었습니다. 뒷골목에서 평범한 한 달은 축복입니다.
+
+- id: work.night_shift
+  text: 밤늦게까지 남는 일을 받는다. (위험수당)
+  when: { not: { tag: 거주=둥지 } }
+  outcome:
+    effects: [{ money: 350000 }, { addTag: 이번달:야간 }]
+    text: 위험수당이 붙은 일은 늘 있습니다. 문제는 일이 끝나는 시간이죠.
+
+# ───────────── 자기계발 ─────────────
+
+- id: self.train
+  text: 체육관에서 몸을 단련한다. (30만 안)
+  requires: { money: { gte: 300000 } }
+  check: { virtue: 자제, difficulty: 2 }
+  success:
+    effects: [{ money: -300000 }, { ability: { 전투: 1 } }, { hp: 2 }]
+    text: 관장이 말했습니다. "강화시술은 차를 바꾸는 거고, 단련은 운전을 배우는 거야." 당신은 운전을 조금 배웠습니다.
+  failure:
+    effects: [{ money: -300000 }, { hp: -1 }]
+    text: 근육통만 남았습니다.
+
+- id: self.study
+  text: 책을 읽고 공부한다. (10만 안)
+  requires: { money: { gte: 100000 } }
+  check: { virtue: 신중, difficulty: 2 }
+  success:
+    effects: [{ money: -100000 }, { ability: { 학식: 1 } }]
+    text: 도시의 역사, 날개들의 특허 목록, 협회의 규정집. 아는 것이 늘수록 무서운 것도 늘어납니다.
+  failure:
+    effects: [{ money: -100000 }, { sp: -2 }]
+    text: 같은 페이지를 열 번 읽었습니다.
+
+- id: self.craft
+  text: 고물로 무언가를 만들어 본다.
+  check: { ability: 기술, difficulty: 1 }
+  success:
+    effects: [{ ability: { 기술: 1 } }, { sp: 3 }]
+    text: 작지만 제대로 움직이는 물건이 하나 생겼습니다. 트레스 협회 심사는 받지 않았으니, 팔 수는 없습니다.
+  failure:
+    effects: [{ sp: -2 }]
+    text: 고물은 고물로 남았습니다.
+
+- id: self.pub
+  text: 술집에서 사람들을 만난다. (5만 안)
+  requires: { money: { gte: 50000 } }
+  check: { ability: 화술, difficulty: 1 }
+  success:
+    effects: [{ money: -50000 }, { sp: 6 }, { ability: { 화술: 1 } }]
+    text: 도시 최강의 해결사가 누구냐를 두고 옆 테이블이 싸우고 있었습니다. 당신도 끼어들었습니다. 결론은 나지 않았습니다. 그게 재미입니다.
+  failure:
+    effects: [{ money: -50000 }, { sp: 2 }]
+    text: 혼자 마셨습니다. 그래도 조금은 나아졌습니다.
+
+- id: self.rest
+  text: 푹 쉰다.
+  outcome:
+    effects: [{ sp: 8 }, { hp: 3 }]
+    text: 오랜만에 늦잠을 잤습니다. 창밖에서 들리는 소리가 오늘은 그냥 생활 소음으로 들립니다.
+
+# ───────────── 몸과 거주 ─────────────
+
+- id: body.tattoo
+  text: 제대로 된 강화 문신을 받는다. (150만 안)
+  when: { not: { tag: 신체:강화문신 } }
+  requires: { money: { gte: 1500000 } }
+  outcome:
+    effects: [{ money: -1500000 }, { addTag: 신체:강화문신 }, { hpMax: 3 }, { ability: { 전투: 1 } }]
+    text: 좋은 물감은 다릅니다. 문신이 피부 아래에서 은은하게 숨 쉬는 것 같습니다. 단, 이 자리에 흉이 지면 효과도 사라진다는 걸 잊지 마세요.
+
+- id: body.ampoule
+  text: K사 앰플을 하나 구한다. (800만 안)
+  when: { not: { tag: 소지:K사앰플 } }
+  requires: { money: { gte: 8000000 } }
+  outcome:
+    effects: [{ money: -8000000 }, { addTag: 소지:K사앰플 }]
+    text: 녹색 액체가 든 작은 앰플. 뇌만 멀쩡하면 무엇이든 원래대로 돌려 준다고 합니다. 어디서 오는 물건인지는 묻지 않는 게 예의입니다.
+
+- id: home.register
+  text: 거주구역 등록을 다시 한다. (80만 안)
+  when: { tag: 거주=무등록 }
+  requires: { money: { gte: 800000 } }
+  outcome:
+    effects: [{ money: -800000 }, { addTag: 거주=뒷골목 }, { removeTag: 체납 }, { sp: 6 }]
+    text: 다시 문을 잠그고 잘 수 있습니다. 밤이 와도, 이 문 안쪽은 금기가 지켜 줍니다.
+
+- id: home.nest
+  text: 둥지 이주를 신청한다. (2,000만 안)
+  when: { all: [{ not: { tag: 거주=둥지 } }, { any: [{ tag: 직업=깃털 }, { tagNum: { key: 해결사등급, lte: 4, gte: 1 } }, { tag: 직업=공방장인 }] }] }
+  requires: { money: { gte: 20000000 } }
+  check: { ability: 화술, difficulty: 2, bonus: 10 }
+  success:
+    effects: [{ money: -20000000 }, { addTag: 거주=둥지 }, { sp: 15 }, { tagAdd: { key: 명성, value: 3 } }, { addTag: 기록:둥지_이주 }]
+    text: 날개의 허가가 났습니다. 이삿짐을 옮기던 날, 당신은 검문소에서 뒤를 돌아보았습니다. 저쪽에서 누군가 이쪽을 올려다보고 있었습니다. 예전의 당신처럼.
+  failure:
+    effects: [{ money: -2000000 }, { sp: -10 }]
+    text: 서류는 돌아왔고, 수수료는 돌아오지 않았습니다. 사유는 적혀 있지 않았습니다. 돈만으로는 둥지에 들어갈 수 없습니다.
+
+# ───────────── 정착 ─────────────
+
+- id: life.settle
+  text: 이제 그만 정착한다. (인생 마무리)
+  when: { age: [45, 200] }
+  requires: { all: [{ money: { gte: 10000000 } }, { not: { tag: 거주=무등록 } }] }
+  outcome:
+    effects: [{ end: 은퇴 }]
+    text: 당신은 일을 내려놓았습니다. 이 도시에서 스스로 멈출 수 있었던 사람은 많지 않습니다.

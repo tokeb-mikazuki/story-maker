@@ -1,0 +1,508 @@
+# 성인기 랜덤 인카운터. 원작 사건(984~985)은 date 범위로 '소문' 처리한다. 원작 인물은 카메오까지만.
+
+# ───────────── 공통 ─────────────
+
+- id: adult.hamham
+  stage: adult
+  cooldown: 6
+  weight: 8
+  tone: positive
+  group: food
+  title: 햄햄팡팡
+  text: |
+    점심시간. 골목마다 하나씩 있는 햄햄팡팡 앞에 해결사들이 줄을 서 있습니다. 싸고, 빠르고, 맛있습니다. 이 도시에서 셋 다 되는 건 드뭅니다.
+    오늘은 기간 한정 메뉴가 있다고 합니다.
+  choices:
+    - text: 스페셜 샌드위치를 산다. (8,000 안)
+      requires: { money: { gte: 8000 } }
+      outcome:
+        effects: [{ money: -8000 }, { sp: 6 }, { hp: 1 }]
+        text: 한 입 베어 무는 순간, 오늘 하루가 조금 덜 나빠졌습니다. 옆자리 해결사가 "여기 없었으면 뒷골목 살 맛 안 났을 거야"라고 중얼거립니다. 당신도 동의합니다.
+    - text: 줄이 길다. 그냥 지나간다.
+      outcome:
+        effects: [{ sp: -1 }]
+        text: 배가 고픈 채로 오후를 보냈습니다.
+
+- id: adult.sweepers_morning
+  stage: adult
+  cooldown: 8
+  weight: 5
+  tone: neutral
+  group: night
+  when: { not: { tag: 거주=둥지 } }
+  title: 깨끗한 아침
+  text: |
+    아침에 나와 보니 골목이 이상하게 깨끗합니다. 어제 저녁까지 길모퉁이에 쓰러져 있던 취객도, 쌓여 있던 쓰레기도, 담벼락에 기대 지어 둔 판잣집도 없습니다.
+    판잣집 주인이 거주 등록비를 두 달째 못 냈다는 이야기를 들은 것 같기도 합니다.
+  choices:
+    - text: 판잣집이 있던 자리에 잠시 서 있는다.
+      outcome:
+        effects: [{ fear: 2 }, { virtue: { 신중: 1 } }]
+        text: 바닥에는 아무 흔적도 없습니다. 청소부들은 일을 잘합니다. 당신은 지갑을 꺼내 등록비 영수증을 확인했습니다.
+    - text: 출근길을 서두른다.
+      outcome:
+        effects: [{ virtue: { 자제: 1 } }]
+        text: 어제와 똑같은 하루가 시작되었습니다. 어제와 다른 건 골목이 조금 넓어졌다는 것뿐입니다.
+
+- id: adult.distortion
+  stage: adult
+  cooldown: 12
+  weight: 5
+  tone: negative
+  title: 종소리
+  text: |
+    단골 식당의 주인이 카운터 너머에서 혼잣말을 하고 있습니다. 아니, 누군가와 대화하는 것 같습니다. 아무도 없는 허공을 향해 고개를 끄덕이며.
+    "…네. 그렇죠. 제가 원하는 대로 살아도 되는 거죠…?"
+    그리고 어디선가, 종소리가 들렸습니다.
+  choices:
+    - text: 이름을 부르며 말을 건다.
+      check: { ability: 화술, difficulty: 3 }
+      success:
+        effects: [{ fear: 2 }, { tagAdd: { key: 명성, value: 2 } }, { addTag: 기록:뒤틀림_해소 }, { emotion: pos }]
+        text: |
+          주인의 팔이 국자처럼 늘어나다가 멈추었습니다. 당신은 그의 가게 이야기를, 그가 처음 끓였다던 국물 이야기를 했습니다. 그가 울기 시작했고, 팔은 천천히 원래대로 돌아왔습니다.
+          뒤틀림은 응어리를 풀면 돌아올 수 있다고 합니다. 그걸 직접 본 사람은 많지 않습니다.
+      failure:
+        effects: [{ hp: -5 }, { fear: 4 }, { addTag: 기록:뒤틀림_목격 }]
+        text: 주인은 더 이상 주인이 아니었습니다. 끓는 솥과 사람이 뒤섞인 무언가가 카운터를 부수며 일어섰습니다. 당신은 화상을 입은 채 간신히 빠져나왔습니다. 그날 저녁 협회 사람들이 가게를 봉쇄했습니다.
+    - text: 바로 도망친다.
+      check: { virtue: 정의, difficulty: 1 }
+      success:
+        effects: [{ fear: 2 }, { addTag: 기록:뒤틀림_목격 }]
+        text: 등 뒤에서 무언가가 터지는 소리가 났습니다. 당신은 돌아보지 않았습니다.
+      failure:
+        effects: [{ hp: -3 }, { fear: 3 }, { addTag: 기록:뒤틀림_목격 }]
+        text: 문턱에 걸려 넘어졌습니다. 뒤에서 뻗어 온 무언가가 당신의 다리를 스쳤습니다.
+    - text: 테이블 아래로 숨는다.
+      check: { ability: 은신, difficulty: 2 }
+      success:
+        effects: [{ fear: 3 }, { addTag: 기록:뒤틀림_목격 }]
+        text: 그것은 당신을 찾지 못하고 거리로 나갔습니다. 당신은 한 시간 뒤에야 다리에 힘이 돌아왔습니다.
+      failure:
+        effects: [{ hp: -6 }, { fear: 4 }, { addTag: 기록:뒤틀림_목격 }]
+        text: 테이블이 통째로 들려 날아갔습니다.
+
+- id: adult.bus_cameo
+  stage: adult
+  date: ['984.01', '985.12']
+  once: true
+  weight: 4
+  tone: neutral
+  title: 이상한 버스
+  text: |
+    큰길로 낡은 버스 한 대가 지나갑니다. 옆면에 '메피스토펠레스'라고 적혀 있습니다.
+    창문 너머로 승객들이 보입니다. 고래잡이 같은 차림의 여자, 갑옷 비슷한 걸 걸친 키 큰 사람, 그리고 머리가… 시계인 사람. 버스 안에서 누군가 "관리자님!" 하고 소리치는 게 들립니다.
+    무척 시끄러운 버스입니다.
+  choices:
+    - text: 손을 흔들어 본다.
+      outcome:
+        effects: [{ sp: 4 }, { addTag: 기록:버스_목격 }]
+        text: 시계 머리가 당신을 향해 고개를 갸웃했습니다. 째깍, 하는 소리가 들린 것 같았습니다. 버스는 다음 구역을 향해 사라졌습니다. 림버스 컴퍼니라는 회사의 버스라고, 나중에 누군가 알려 주었습니다.
+    - text: 못 본 척한다.
+      outcome:
+        effects: [{ addTag: 기록:버스_목격 }]
+        text: 저런 것과 엮이면 피곤해진다는 걸, 당신은 본능적으로 압니다.
+
+- id: adult.rumor_kalw
+  stage: adult
+  date: ['984.02', '984.05']
+  once: true
+  weight: 6
+  tone: negative
+  group: rumor
+  title: 칼프 마을
+  text: |
+    신문 1면. K사 둥지의 칼프 마을에서 대규모 학살. 의체 산업의 성지라 불리던 곳입니다.
+    범인은 N사에서 온 '이단심문관'들이라고 합니다. 의체를 쓰는 사람은 고통을 피한 죄인이라며, 망치로 사람들을 내리쳤다고. 그런데 그들은 K사의 정식 입국 허가를 받고 들어왔다고 합니다.
+  choices:
+    - text: 기사를 끝까지 읽는다.
+      outcome:
+        effects: [{ fear: 2 }, { ability: { 학식: 1 } }]
+        text: 기사 마지막 줄. "K사는 이번 사건에 대해 별도의 입장을 밝히지 않았다." 당신은 신문을 접으며 생각합니다. 왜 들여보냈을까. 그리고 그 질문을 곧 잊습니다. 도시 사람들은 그렇게 삽니다.
+    - text: 1면을 넘긴다.
+      outcome:
+        effects: [{ virtue: { 자제: 1 } }]
+        text: 2면에는 보살 치킨 신메뉴 광고가 실려 있습니다.
+
+- id: adult.rumor_lamancha
+  stage: adult
+  date: ['984.10', '984.12']
+  once: true
+  weight: 8
+  tone: negative
+  group: rumor
+  title: 놀이공원
+  text: |
+    16구 뒷골목에 하룻밤 사이 거대한 놀이공원이 솟아났다고 합니다. 반경 3km를 덮치며 펼쳐졌고, 근처 사람들이 다쳤습니다. P사 건물들은 고무처럼 휘었을 뿐 무너지지 않았다고요.
+    '라만차랜드'. 이백 년 전에 사라졌다던 혈귀들의 놀이공원. 도시 악몽급 재해로 지정되었고, P사가 공개 토벌 의뢰를 냈습니다. 보수가 엄청나다고 합니다.
+  choices:
+    - text: 토벌대에 지원한다.
+      requires: { tag: 직업=해결사 }
+      check: { ability: 전투, difficulty: 4 }
+      success:
+        effects: [{ money: 5000000 }, { tagAdd: { key: 명성, value: 6 } }, { tagAdd: { key: 실적, value: 3 } }, { hp: -6 }, { fear: 4 }, { addTag: 기록:라만차_생존 }]
+        text: |
+          당신은 첫 번째 구역에서 살아 돌아온 몇 안 되는 사람 중 하나가 되었습니다. 회전목마의 말들이 피를 흘렸다는 것 말고는, 그 안에서 본 것을 말하고 싶지 않습니다.
+          토벌대 대부분은 돌아오지 못했습니다. 나중에 들으니, 이상한 버스를 타고 온 회사 사람들이 마지막 구역까지 들어갔다고 합니다.
+      failure:
+        effects: [{ hp: -14 }, { fear: 5 }]
+        text: 입구의 매표소에서 이미 피주머니가 된 해결사들이 당신을 맞았습니다.
+    - text: 소문만 듣는다.
+      outcome:
+        effects: [{ fear: 1 }]
+        text: 토벌대가 거의 전멸했다는 소식은 두 달 뒤에 들려왔습니다. 그리고 놀이공원은 문을 닫았다고 합니다. 영원히.
+
+- id: adult.rumor_time_killer
+  stage: adult
+  date: ['984.11', '985.01']
+  once: true
+  weight: 6
+  tone: negative
+  group: rumor
+  title: 시간 살인마
+  text: |
+    T사 둥지에서 사람들의 시간을 통째로 빼앗아 가는 살인마가 나타났다는 소문. 피해자들은 하루아침에 백 시간을 잃었다고 합니다.
+    빼앗긴 시간은 시간 없는 사람들에게 나눠 주고 있다는 이야기도 있습니다. 그게 정말이라면, 그 살인마를 미워해야 하는 건지 잘 모르겠습니다.
+  choices:
+    - text: 누가 옳은지 생각해 본다.
+      outcome:
+        effects: [{ virtue: { 정의: 2 } }]
+        text: 생각이 정리되기 전에 살인마는 토벌되었다고 합니다. 이번에도 그 시끄러운 버스가 끼어 있었다는 소문이 있습니다.
+    - text: 남의 둥지 일이다.
+      outcome:
+        effects: [{ virtue: { 자제: 1 } }]
+        text: T사 사람들은 원래 시간에 미쳐 있으니까요.
+
+- id: adult.warp_ticket
+  stage: adult
+  cooldown: 24
+  weight: 4
+  tone: neutral
+  title: 워프 열차 특가
+  text: |
+    W사 워프 열차 일반석 특가. 요즘 1등석 손님이 줄어서 표값을 내리고 좌석을 늘렸다고 합니다. 먼 구역까지 눈 깜짝할 새에, 안전하게.
+    "1등석 승객이 실종됐다더라"는 소문도 있지만, 소문은 소문입니다.
+  choices:
+    - text: 표를 사서 먼 구역 구경을 다녀온다. (20만 안)
+      requires: { money: { gte: 200000 } }
+      outcome:
+        effects: [{ money: -200000 }, { sp: -6 }, { addTag: 기록:워프열차_탑승 }]
+        text: |
+          눈을 감았다 떴더니 도착해 있었습니다. 정말 눈 깜짝할 새였습니다.
+          그런데 이상하게, 아주 오래 무언가를 기다린 것 같은 피로가 남았습니다. 손톱이 조금 길어진 것 같기도 합니다. 내리는 문 옆에서 청소 도구를 든 직원들이 당신을 아주 오래 바라보았습니다.
+    - text: 버스로 간다. 느려도 괜찮다.
+      outcome:
+        effects: [{ virtue: { 신중: 1 } }]
+        text: 느린 건 괜찮습니다. 도착했을 때 내가 나인 게 중요하죠.
+
+- id: adult.old_friend
+  stage: adult
+  cooldown: 18
+  weight: 5
+  tone: neutral
+  when: { tag: 인맥=어린친구 }
+  title: 옛 친구
+  text: |
+    길에서 옛 친구와 마주쳤습니다. 특색이 되겠다던 그 아이. 코트를 어깨에 걸치고 있습니다. 강한 사람들이 그렇게 입는다면서요.
+    "나 3급 됐어. 둥지에 사무소 낼 수 있대." 친구는 웃는데, 눈 밑이 검습니다.
+  choices:
+    - text: 축하하며 술을 산다. (5만 안)
+      requires: { money: { gte: 50000 } }
+      outcome:
+        effects: [{ money: -50000 }, { sp: 8 }, { emotion: pos }, { addTag: 기록:친구와_술 }]
+        text: 둘은 3시 13분 전까지 마셨습니다. 친구는 헤어지며 말했습니다. "언젠가 너도 내 사무소로 와." 그 사무소가 열리는 날은 오지 않았지만, 그 말은 오래 남았습니다.
+    - text: 바쁘다며 지나친다.
+      outcome:
+        effects: [{ sp: -3 }]
+        text: 친구는 손을 들었다가 내렸습니다.
+
+# ───────────── 보호 손가락 ─────────────
+
+- id: adult.index_note
+  stage: adult
+  cooldown: 10
+  weight: 7
+  tone: negative
+  when: { all: [{ tag: 보호=검지 }, { not: { tag: 거주=둥지 } }] }
+  title: 쪽지
+  text: |
+    현관문 틈의 하얀 쪽지. 푸른 인장.
+    「옆집 이웃의 생일 케이크에 바늘 세 개를 넣어라.」
+    지령은 처음엔 간단합니다. 갈수록 이상해진다고들 합니다.
+  choices:
+    - text: 지령대로 한다.
+      outcome:
+        effects: [{ sp: -6 }, { sin: 질투 }, { tagAdd: { key: 지령수행, value: 1 } }]
+        text: 바늘을 넣는 손이 떨렸습니다. 넣으라고 했지, 먹이라고는 하지 않았다는 것을 깨달은 건 그 뒤였습니다. 당신은 옆집 사람에게 "케이크에 바늘이 있다"고 귀띔했습니다. 지령은 그걸 금하지 않았으니까요.
+    - text: 무시한다.
+      check: { virtue: 정의, difficulty: 3, bonus: 10 }
+      success:
+        effects: [{ virtue: { 정의: 1 } }, { addTag: 기록:지령거부 }]
+        text: 아무 일도 없었습니다. 이번에는요.
+      failure:
+        effects: [{ hp: -6 }, { fear: 4 }, { addTag: 기록:지령거부 }]
+        text: 하얀 망토의 대행자가 찾아왔습니다. 그는 당신이 지령을 수행하지 않았다는 지령을 받았다고, 아주 공손하게 말했습니다.
+
+- id: adult.thumb_tribute
+  stage: adult
+  cooldown: 10
+  weight: 6
+  tone: negative
+  when: { all: [{ tag: 보호=엄지 }, { not: { tag: 거주=둥지 } }] }
+  title: 붉은 코트
+  text: |
+    붉은 코트에 중절모를 쓴 솔다토 둘이 동네 가게를 돌며 상납금을 걷고 있습니다. 당신 앞에서 멈춥니다.
+    "이번 달부터 보호비가 오른다." 위쪽에서 정한 일이라고 합니다. 엄지에서는 위쪽에서 정한 일에 이유를 묻지 않습니다.
+  choices:
+    - text: 고개를 숙이고 낸다. (20만 안)
+      requires: { money: { gte: 200000 } }
+      outcome:
+        effects: [{ money: -200000 }, { virtue: { 자제: 1 } }]
+        text: 솔다토는 만족한 듯 모자챙을 살짝 들었습니다. 엄지는 돈과 예의만 지키면 확실히 보호해 줍니다. 그게 엄지의 좋은 점이고, 유일한 좋은 점입니다.
+    - text: 왜 오르냐고 묻는다.
+      check: { ability: 화술, difficulty: 3 }
+      success:
+        effects: [{ money: -100000 }, { ability: { 화술: 1 } }]
+        text: 당신은 극존칭으로, 위쪽의 뜻을 의심하는 게 아니라 이해하고 싶을 뿐이라고 말했습니다. 솔다토는 잠시 생각하더니 "예의가 바르군" 하고 이번 달만 절반을 받았습니다.
+      failure:
+        effects: [{ hp: -5 }, { money: -200000 }, { sp: -8 }]
+        text: 허락 없이 말을 꺼낸 하급자는 아래턱을 잃습니다. 당신은 외부인이라 '예의상' 앞니 두 개로 끝났습니다.
+
+- id: adult.middle_ledger
+  stage: adult
+  cooldown: 30
+  weight: 3
+  tone: negative
+  when: { not: { tag: 상태:중지장부 } }
+  title: 아이스크림
+  text: |
+    붐비는 시장 골목. 누군가와 어깨를 부딪쳤고, 그 사람의 화려한 셔츠에 당신의 커피가 쏟아졌습니다.
+    보라색 문신이 빛나는 팔. 사슬에 매달린 두꺼운 장부. 중지입니다. 그것도, 장부 크기로 보아 꽤 높은 사람.
+    그는 셔츠를 내려다보고는, 웃으며 말했습니다. "괜찮아, 괜찮아."
+  choices:
+    - text: 백배 사죄하고 세탁비를 내민다. (30만 안)
+      requires: { money: { gte: 300000 } }
+      check: { ability: 화술, difficulty: 2 }
+      success:
+        effects: [{ money: -300000 }, { sp: -4 }]
+        text: 그는 돈을 받지 않고, 당신 이름도 묻지 않았습니다. 장부는 열리지 않았습니다. 당신은 그날 밤 잠을 이루지 못했습니다.
+      failure:
+        effects: [{ money: -300000 }, { addTag: 상태:중지장부 }, { fear: 3 }]
+        text: 그는 돈을 받고, 장부를 펼쳐, 무언가를 적었습니다. 당신의 이름이었습니다. "중지는 잊지 않거든."
+    - text: 그냥 괜찮다니까 간다.
+      outcome:
+        effects: [{ addTag: 상태:중지장부 }, { fear: 2 }]
+        text: 등 뒤에서 장부 넘기는 소리가 들렸습니다. 뒷골목에는 이런 소문이 있습니다. 작은 형님 옷에 아이스크림을 쏟은 아이의 가족이 다음 날 사라졌다고.
+
+- id: adult.middle_collect
+  stage: adult
+  cooldown: 4
+  weight: 8
+  tone: negative
+  when: { tag: 상태:중지장부 }
+  title: 장부의 독촉
+  text: |
+    보라색 문신을 한 사람들이 당신이 사는 골목에 나타났습니다. 장부의 내용은 모든 조직원이 실시간으로 공유한다고 합니다. 어디로 이사를 가도 그 동네의 중지가 대신 찾아온다고요.
+  choices:
+    - text: 앙갚음을 받아들인다.
+      outcome:
+        effects: [{ hp: -6 }, { removeTag: 상태:중지장부 }, { sp: -10 }]
+        text: 장부 3조 4항 G열. 복부에 신체를 이용한 세 번의 가격. 그들은 정확히 세 번 때렸고, 장부에 줄을 그었습니다. 이상하게 공정했습니다.
+    - text: 도망친다.
+      check: { ability: 은신, difficulty: 3 }
+      success:
+        effects: [{ fear: 2 }, { sp: -4 }]
+        text: 이번에는 따돌렸습니다. 하지만 장부는 닫히지 않았습니다. 장부 2조 11항 C행에는 처벌을 피해 다니는 자에 대한 항목이 있다고 합니다.
+      failure:
+        effects: [{ hp: -10 }, { removeTag: 상태:중지장부 }, { fear: 4 }]
+        text: 장부 2조 11항 C행. 중지의 처벌을 피해 다니면, 다리부터.
+
+# ───────────── 직업별 ─────────────
+
+- id: fixer.cat
+  stage: adult
+  cooldown: 5
+  weight: 8
+  tone: neutral
+  when: { all: [{ tag: 직업=해결사 }, { tagNum: { key: 해결사등급, gte: 6 } }] }
+  title: 고양이 찾기
+  text: |
+    의뢰: 삼색 고양이를 찾아 주세요. 사례비 15만 안. 오늘 밤이 오기 전에.
+    어릴 적 골목에서 고양이를 찾던 해결사가 떠오릅니다. 이제 당신 차례입니다.
+  choices:
+    - text: 골목을 샅샅이 뒤진다.
+      check: { ability: 생존, difficulty: 1 }
+      success:
+        effects: [{ money: 150000 }, { tagAdd: { key: 실적, value: 1 } }, { sp: 3 }]
+        text: 고양이는 하수구 철망 아래 있었습니다. 늘 거기 있습니다. 의뢰인 아이가 당신에게 동전 하나를 쥐여 주었습니다.
+      failure:
+        effects: [{ addTag: 이번달:야간 }, { sp: -3 }]
+        text: 해가 졌습니다. 고양이는 아직입니다. 당신은 시계를 봅니다. 아직 3시 13분까지는 시간이 있습니다. 아마도.
+
+- id: fixer.office_raid
+  stage: adult
+  cooldown: 12
+  weight: 4
+  tone: negative
+  when: { all: [{ tag: 직업=해결사 }, { tagNum: { key: 해결사등급, gte: 6 } }] }
+  title: 사무소 깨기
+  text: |
+    사무소 문이 발로 차여 열립니다. 쇠파이프를 든 조직원 다섯. 지난번 의뢰에서 당신이 망친 일의 앙갚음이라고 합니다. 혹은 그냥 심심했는지도요. 저등급 사무소는 이런 일로 자주 없어집니다.
+  choices:
+    - text: 맞서 싸운다.
+      check: { ability: 전투, difficulty: 2 }
+      success:
+        effects: [{ hp: -3 }, { tagAdd: { key: 명성, value: 1 } }, { tagAdd: { key: 실적, value: 1 } }, { sin: 분노 }]
+        text: 마지막 놈이 계단을 굴러 내려갔습니다. 당신 사무소 간판은 오늘도 걸려 있습니다.
+      failure:
+        effects: [{ hp: -7 }, { money: -300000 }, { sp: -8 }]
+        text: 그들은 사무소를 부수고, 금고를 털고, 당신을 문 앞에 내던졌습니다.
+    - text: 창문으로 도망친다.
+      check: { ability: 은신, difficulty: 1 }
+      success:
+        effects: [{ money: -300000 }, { sp: -5 }]
+        text: 몸은 무사했습니다. 사무소는 그렇지 않았습니다.
+      failure:
+        effects: [{ hp: -5 }, { money: -300000 }]
+        text: 창틀에 걸려 반쯤 매달린 채 얻어맞았습니다.
+
+- id: fixer.contract
+  stage: adult
+  cooldown: 10
+  weight: 5
+  tone: neutral
+  when: { tag: 직업=해결사 }
+  title: 좋은 조건
+  text: |
+    양복 차림의 의뢰인이 두툼한 봉투를 내밉니다. 어떤 회사 창고를 하룻밤 '지켜' 주면 된다고 합니다. 사례비 200만 안. 9급 해결사에게는 꿈 같은 액수입니다.
+    단, 계약 사무소를 거치지 말자고 합니다. 수수료가 아깝다면서.
+  choices:
+    - text: 공증 없이 받는다.
+      check: { virtue: 신중, difficulty: 3 }
+      success:
+        effects: [{ money: 2000000 }, { tagAdd: { key: 실적, value: 1 } }, { addTag: 이번달:야간 }]
+        text: 아무 일도 없었고, 돈은 들어왔습니다. 당신은 운이 좋았습니다. 정말로요.
+      failure:
+        effects: [{ hp: -6 }, { sp: -10 }, { addTag: 적=사기꾼 }, { addTag: 이번달:야간 }]
+        text: 창고는 다른 조직의 것이었고, 당신은 '침입자'로서 그들을 맞이했습니다. 의뢰인은 연락이 끊겼습니다. 계약 사무소를 거치지 않은 계약은 언제든 뒤통수를 칩니다.
+    - text: 계약 사무소에서 공증받자고 한다.
+      outcome:
+        effects: [{ virtue: { 신중: 1 } }]
+        text: 의뢰인은 웃으며 봉투를 거두어 갔습니다. 다시는 오지 않았습니다. 그게 답이었습니다.
+
+- id: feather.contract_clause
+  stage: adult
+  once: true
+  weight: 6
+  tone: negative
+  when: { tag: 직업=깃털 }
+  title: 열두 번째 장
+  text: |
+    야근 중에 서랍 속 입사 계약서를 다시 꺼내 보았습니다. 끝까지 읽은 건 처음입니다.
+    2항. "특이점의 보안은 절대적이며, 회사의 모든 물질 및 비물질적 자산을 소모해서라도 지켜야 한다."
+    마지막 항. "이 계약서에 서명한 시점부터 서명인은 회사의 중요한 자산으로 취급한다."
+  choices:
+    - text: 두 문장을 이어서 다시 읽는다.
+      outcome:
+        effects: [{ sp: -10 }, { virtue: { 신중: 2 } }, { addTag: 기록:계약서_독해 }]
+        text: 회사의 모든 자산을 소모해서라도. 당신은 회사의 자산. 계약서를 서랍에 다시 넣었습니다. 알아도 바뀌는 건 없습니다. 다들 그렇게 서명했습니다.
+    - text: 서랍을 닫는다.
+      outcome:
+        effects: [{ virtue: { 자제: 1 } }]
+        text: 내일도 출근해야 합니다.
+
+- id: feather.overtime
+  stage: adult
+  cooldown: 6
+  weight: 7
+  tone: negative
+  when: { tag: 직업=깃털 }
+  title: 빈자리
+  text: |
+    옆자리 동료가 오늘 출근하지 않았습니다. 팀장은 "퇴사했다"고만 합니다. 기밀 유지를 위해 기억 처리를 받고, 퇴직금도 받았다고.
+    선배 하나가 담배를 물고 중얼거립니다. "그걸 믿냐?"
+  choices:
+    - text: 동료의 집에 연락해 본다.
+      check: { virtue: 신중, difficulty: 2 }
+      success:
+        effects: [{ fear: 2 }, { virtue: { 정의: 1 } }]
+        text: 동료는 집에 있었습니다. 당신을 알아보지 못했습니다. 회사에 다녔던 것조차 기억하지 못했습니다. 그래도 살아 있습니다. 당신은 그걸 다행이라고 부르기로 했습니다.
+      failure:
+        effects: [{ fear: 3 }, { sp: -6 }]
+        text: 없는 번호라고 합니다. 주소지에는 다른 사람이 살고 있었습니다.
+    - text: 그의 일까지 맡아서 한다.
+      outcome:
+        effects: [{ sp: -5 }, { virtue: { 자제: 1 } }, { tagAdd: { key: 명성, value: 1 } }]
+        text: 이번 주 근무시간은 82시간이었습니다. 복지가 좋다는 회사의 기준으로도 많은 편입니다.
+
+- id: gang.errand
+  stage: adult
+  cooldown: 4
+  weight: 7
+  tone: negative
+  when: { tag: 직업=조직원 }
+  title: 수금
+  text: |
+    위에서 내려온 일입니다. 보호비를 석 달째 안 낸 국숫집. 오늘 받아 오라고 합니다.
+    가게 주인은 당신보다 훨씬 나이 많은, 손이 떨리는 노인입니다.
+  choices:
+    - text: 받아 낸다.
+      outcome:
+        effects: [{ money: 300000 }, { sin: 분노 }, { emotion: neg }, { tagAdd: { key: 조직공헌, value: 1 } }]
+        text: 노인은 서랍 깊은 곳에서 구겨진 지폐를 꺼냈습니다. 당신 몫은 그중 일부입니다. 그날 저녁 국수가 목에 걸렸습니다. 국수를 먹은 것도 아닌데.
+    - text: 내 돈으로 메운다. (30만 안)
+      requires: { money: { gte: 300000 } }
+      outcome:
+        effects: [{ money: -300000 }, { virtue: { 정의: 2 } }, { emotion: pos }]
+        text: 위에는 받아 왔다고 보고했습니다. 이런 짓을 계속할 수는 없다는 걸 압니다. 그래도 오늘은 했습니다.
+    - text: 못 받았다고 보고한다.
+      check: { ability: 화술, difficulty: 2 }
+      success:
+        effects: [{ sp: -3 }]
+        text: 형님은 혀를 찼지만 넘어갔습니다. 다음 달엔 다른 사람이 갈 겁니다. 그 사람이 당신 같지 않을 수도 있습니다.
+      failure:
+        effects: [{ hp: -5 }, { sp: -6 }]
+        text: 조직은 무능을 용서하지 않습니다. 당신 대신 그 일을 맡은 사람이 오늘 밤 국숫집에 갑니다.
+
+- id: workshop.customer
+  stage: adult
+  cooldown: 5
+  weight: 7
+  tone: neutral
+  when: { tag: 직업=공방견습 }
+  title: 급한 손님
+  text: |
+    마감 직전, 피투성이 해결사가 부러진 검을 카운터에 내려놓습니다. "새벽 세 시 전까지. 오늘 밤 일이 있어."
+    주인은 퇴근했습니다. 공방에는 당신뿐입니다.
+  choices:
+    - text: 밤을 새워 고친다.
+      check: { ability: 기술, difficulty: 2 }
+      success:
+        effects: [{ money: 200000 }, { tagAdd: { key: 숙련, value: 2 } }, { tagAdd: { key: 명성, value: 1 } }]
+        text: 해결사는 검을 받아 두 번 휘두르고는 고개를 끄덕였습니다. 이름도 남기지 않고 떠났습니다. 그 검이 오늘 밤 그를 살렸기를 바랍니다.
+      failure:
+        effects: [{ hp: -2 }, { sp: -6 }, { tagAdd: { key: 숙련, value: 1 } }]
+        text: 이음새가 맞지 않았습니다. 해결사는 고쳐지지 않은 검을 들고 나갔습니다. 다음 날 그는 오지 않았고, 다음 주에도 오지 않았습니다.
+    - text: 내일 오라고 한다.
+      outcome:
+        effects: [{ sp: -2 }]
+        text: 그에게 내일이 있었기를 바랍니다.
+
+- id: civilian.regular
+  stage: adult
+  cooldown: 6
+  weight: 7
+  tone: positive
+  when: { tag: 직업=소시민 }
+  title: 단골
+  text: |
+    매일 같은 시간에 오는 손님이 있습니다. 은퇴한 해결사라는 노인. 오늘은 당신에게 오래된 이야기를 해 줍니다. 붉은안개라는 해결사가 한 골목을 통째로 지켜 냈던 이야기.
+  choices:
+    - text: 끝까지 들어 준다.
+      outcome:
+        effects: [{ sp: 6 }, { ability: { 학식: 1 } }, { emotion: pos }]
+        text: 노인은 이야기를 마치고 커피값보다 많은 돈을 두고 갔습니다. 다음 날부터 그는 오지 않았습니다.
+    - text: 일이 바빠서 건성으로 듣는다.
+      outcome:
+        effects: [{ money: 30000 }]
+        text: 오늘 매출은 조금 올랐습니다.

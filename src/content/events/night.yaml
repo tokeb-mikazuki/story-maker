@@ -1,0 +1,105 @@
+# 뒷골목의 밤 (03:13 ~ 04:34). 성인기 매달 '밤' 단계에서 조건이 맞으면 발생.
+# 청소부: 20분 청소 + 10분 휴식 × 3파. 2파·3파는 goto로만 이어진다(weight: 0).
+
+- id: night.sweepers
+  kind: night
+  stage: adult
+  weight: 10
+  tone: negative
+  group: night
+  when: { any: [{ tag: 거주=무등록 }, { tag: 이번달:야간 }] }
+  title: 3시 13분
+  text: |
+    시계가 3시 13분을 가리킵니다. 당신은 아직 거리에 있습니다.
+    골목 끝에서 땅이 울리기 시작합니다. 숫자를 세는 목소리들. 보호복과 붉은 갈고리. 청소부들이 둥지의 경계에서부터 파도처럼 밀려옵니다.
+    지금부터 80분. 녹취와 거주구역 침입을 빼면, 무슨 일이 일어나도 아무도 묻지 않습니다.
+  choices:
+    - text: 가장 가까운 거주구역의 문을 두드린다.
+      check: { ability: 화술, difficulty: 2 }
+      success:
+        effects: [{ fear: 2 }, { sp: -3 }]
+        text: 문틈으로 겁에 질린 눈이 당신을 한참 쳐다보더니, 걸쇠가 풀렸습니다. 당신은 낯선 사람의 현관에 웅크린 채 80분을 보냈습니다. 그 사람은 아무것도 묻지 않았고, 당신도 이름을 묻지 않았습니다.
+      failure:
+        goto: night.sweepers_2
+        effects: [{ fear: 2 }]
+        text: 문 너머에서 숨죽이는 기척만 들립니다. 열어 주지 않습니다. 당연합니다. 당신이라도 그랬을 겁니다. 첫 번째 파도가 골목으로 쏟아져 들어옵니다.
+    - text: 그늘에 몸을 숨긴다.
+      check: { ability: 은신, difficulty: 2 }
+      success:
+        effects: [{ fear: 3 }, { ability: { 은신: 1 } }]
+        text: 청소부들이 당신 바로 앞을 지나갔습니다. 갈고리 하나가 당신의 코트 자락을 스쳤다가, 쓰레기로 착각했는지 다른 곳으로 향했습니다. 당신은 숨 쉬는 법을 잊은 채 80분을 버텼습니다.
+      failure:
+        goto: night.sweepers_2
+        effects: [{ hp: -3 }, { fear: 3 }]
+        text: 붉은 렌즈 하나가 당신 쪽을 향했습니다. "…발견했습니다." 숫자로 된 말이었지만, 그렇게 들렸습니다.
+    - text: 맞서 싸운다.
+      check: { ability: 전투, difficulty: 3 }
+      success:
+        goto: night.sweepers_2
+        effects: [{ hp: -3 }, { fear: 2 }, { sin: 분노 }]
+        text: 첫 번째 파도를 베어 넘겼습니다. 쓰러진 청소부들의 몸을 다른 청소부들이 흡수하며 다시 일어섭니다. 10분의 휴식. 그리고 두 번째 파도가 옵니다.
+      failure:
+        goto: night.sweepers_2
+        effects: [{ hp: -6 }, { fear: 3 }]
+        text: 갈고리가 어깨를 꿰뚫었습니다. 살이 녹는 감각. 당신은 간신히 몸을 빼냈습니다.
+    - text: 거주구역의 벽을 부수고 들어간다.
+      outcome:
+        effects: [{ end: 금기 }]
+        text: |
+          벽이 무너지는 순간, 청소부들이 일제히 멈췄습니다. 그리고 정중하게, 길을 비켰습니다.
+          골목 끝에서 다른 무언가가 걸어오고 있었습니다. 뒷골목의 밤에 거주구역을 파괴하는 것은 도시의 금기입니다. 머리는 금기를 어긴 자를 살려 두지 않습니다. 밥을 먹다가도, 잠에 든 순간에도.
+
+- id: night.sweepers_2
+  kind: night
+  weight: 0
+  tone: negative
+  group: night
+  title: 두 번째 파도
+  text: |
+    3시 43분. 10분의 정적이 끝나고, 두 번째 파도가 옵니다. 아까보다 더 많습니다. 1급 해결사도 두 번째 파도까지 버티면 너덜너덜해진다고 들었습니다.
+  choices:
+    - text: 골목을 꺾어 가며 달린다.
+      check: { virtue: 정의, difficulty: 2 }
+      success:
+        goto: night.sweepers_3
+        effects: [{ hp: -2 }, { fear: 2 }]
+        text: 당신은 미로 같은 골목을 내달렸습니다. 숨이 턱까지 찹니다. 남은 시간은 40분.
+      failure:
+        goto: night.sweepers_3
+        effects: [{ hp: -5 }, { fear: 3 }]
+        text: 막다른 길이었습니다. 담을 넘으며 갈고리에 다리를 긁혔습니다.
+    - text: 주거용 차량 밑으로 기어든다.
+      check: { ability: 생존, difficulty: 2 }
+      success:
+        effects: [{ fear: 3 }, { ability: { 생존: 1 } }]
+        text: 주거용으로 등록된 차량은 청소부들이 건드리지 않습니다. 그 밑도 그런지는 몰랐지만, 그랬습니다. 당신은 기름 냄새 속에서 아침을 맞았습니다.
+      failure:
+        goto: night.sweepers_3
+        effects: [{ hp: -4 }, { fear: 3 }]
+        text: 차량은 등록이 만료된 폐차였습니다. 청소부들이 차를 통째로 녹이기 시작했습니다.
+
+- id: night.sweepers_3
+  kind: night
+  weight: 0
+  tone: negative
+  group: night
+  title: 세 번째 파도
+  text: |
+    4시 13분. 마지막 파도. 몸이 말을 듣지 않습니다. 20분만, 20분만 버티면 됩니다.
+  choices:
+    - text: 남은 힘을 모두 짜낸다.
+      check: { virtue: 용기, difficulty: 3 }
+      success:
+        effects: [{ hp: -3 }, { fear: 3 }, { virtue: { 용기: 2 } }, { tagAdd: { key: 명성, value: 1 } }, { addTag: 기록:밤을_버팀 }]
+        text: 4시 34분. 청소부들이 일제히 멈추고, 몸을 돌려, 아무 일 없었다는 듯 사라졌습니다. 당신은 깨끗해진 골목 한가운데 서 있었습니다. 살아서. 해가 뜨고 있었습니다.
+      failure:
+        effects: [{ end: 청소 }]
+        text: 갈고리가 당신의 등에 박혔습니다. 차갑지는 않았습니다. 오히려 따뜻했습니다. 숫자를 세는 목소리가, 아주 다정하게 들렸습니다.
+    - text: 마지막 거주구역 문을 두드린다.
+      check: { ability: 화술, difficulty: 3 }
+      success:
+        effects: [{ fear: 2 }, { addTag: 기록:밤을_버팀 }]
+        text: 이번에는 열렸습니다. 문을 열어 준 사람은 아이였습니다. 당신이 어릴 적 그랬던 것처럼, 아이는 커튼 틈으로 당신을 지켜보고 있었다고 했습니다.
+      failure:
+        effects: [{ end: 청소 }]
+        text: 문은 열리지 않았습니다.
