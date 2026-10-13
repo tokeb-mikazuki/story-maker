@@ -1,11 +1,10 @@
 // 공개 사이트(홈·창작마당·게시판·About Us·계정 화면)의 틀과 공용 조각.
 
-import type { CSSProperties, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { type PublicProfile, isGoneProfile, profileOf } from '../lib/auth';
 import type { WorkSummary } from '../lib/community';
 import { href } from '../lib/router';
 import { AccountMenu, Avatar } from './Account';
-import { BookCover, genreTone } from './Cover';
 
 const NAV: [page: string, label: string][] = [
   ['', '홈'],
@@ -129,36 +128,7 @@ export function RatingText({ w }: { w: Pick<WorkSummary, 'avg' | 'ratingCount'> 
 
 // ───────────────────────── 작품 카드 ─────────────────────────
 
-export { BookCover, genreTone } from './Cover';
-
-export function WorkCard({ w }: { w: WorkSummary }) {
-  const link = href('works', w.id);
-  return (
-    <article className="work-tile">
-      <a href={link} className="work-tile-cover" aria-label={`${w.title} 작품 보기`}>
-        <BookCover w={w} />
-      </a>
-      <div className="work-tile-body">
-        <div className="work-tile-tags">
-          <span className="genre-pill" style={{ '--tone': genreTone(w.genre) } as CSSProperties}>
-            {w.genre}
-          </span>
-          <span className="mode-pill">{w.mode === 'life' ? '인생형' : '이야기형'}</span>
-        </div>
-        <h3>
-          <a href={link}>{w.title}</a>
-        </h3>
-        <AuthorLink id={w.ownerId} size={18} />
-        <div className="work-tile-stats">
-          <RatingText w={w} />
-          <span className="plays" title="플레이 수">
-            ▶ {w.plays.toLocaleString('ko-KR')}
-          </span>
-        </div>
-      </div>
-    </article>
-  );
-}
+export { BookCover, Thumb, genreTone } from './Cover';
 
 // ───────────────────────── 시간 ─────────────────────────
 

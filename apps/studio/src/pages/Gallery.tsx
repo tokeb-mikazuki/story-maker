@@ -1,7 +1,8 @@
 // 창작마당: 공개된 작품 목록. 정렬(인기·별점·최신·플레이) · 장르 · 형식 · 검색.
 
 import { type CSSProperties, useState } from 'react';
-import { PageHead, WorkCard, genreTone } from '../components/Site';
+import { WorkCard } from '../components/Shelf';
+import { PageHead, genreTone } from '../components/Site';
 import { useWorks } from '../lib/community';
 import { GENRES, SORTS, type SortKey, filterWorks, sortWorks } from '../lib/ranking';
 import { href } from '../lib/router';
@@ -106,7 +107,7 @@ export function Gallery() {
           )}
         </div>
       )}
-      <div className="work-grid">
+      <div className="tile-grid">
         {list.slice(0, shown).map((w) => (
           <WorkCard key={w.id} w={w} />
         ))}

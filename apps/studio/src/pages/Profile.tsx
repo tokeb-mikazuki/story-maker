@@ -3,7 +3,8 @@
 import type { StoryPackage } from '@engine';
 import { type FormEvent, type ReactNode, useEffect, useState } from 'react';
 import { Avatar } from '../components/Account';
-import { RatingText, WorkCard, dateLong, genreTone } from '../components/Site';
+import { WorkCard } from '../components/Shelf';
+import { RatingText, dateLong, genreTone } from '../components/Site';
 import {
   AVATAR_COLORS,
   AVATAR_EMOJIS,
@@ -123,7 +124,7 @@ export function ProfilePage({ id }: { id: string }) {
           <h2>공개한 작품</h2>
         </div>
         {all && works.length === 0 && <p className="empty">아직 창작마당에 올린 작품이 없어요.</p>}
-        <div className="work-grid">
+        <div className="tile-grid">
           {works.map((w) => (
             <WorkCard key={w.id} w={w} />
           ))}
