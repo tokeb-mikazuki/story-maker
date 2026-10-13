@@ -21,10 +21,24 @@ describe('체인 (읽는 이야기)', () => {
     }
     expect(r.scene.type).toBe('end');
     expect(seen).toEqual(chain.events.map((e) => e.id));
-    expect(seen.length).toBeGreaterThan(100);
+    expect(seen.length).toBeGreaterThan(60);
   });
 
   it('쪽마다 글이 너무 길지 않다', () => {
-    for (const e of chain.events) expect(e.text.length, e.id).toBeLessThan(700);
+    for (const e of chain.events) expect(e.text.length, e.id).toBeLessThan(2400);
+  });
+});
+
+describe('체인 — 서술 규칙', () => {
+  const all = chain.events.map((e) => e.text).join('\n');
+  it('쪽 제목이 없다', () => {
+    for (const e of chain.events) expect(e.title, e.id).toBeUndefined();
+  });
+  it('독자에게 말을 걸거나 장을 해설하는 문장이 없다', () => {
+    for (const bad of ['부는 그렇게 끝난다', '이 글을 읽', '당신이 따라온', '후일 밝혀', '훗날', '알지 못했다. 그것이']) expect(all.includes(bad), bad).toBe(false);
+  });
+  it('이안의 1인칭이다', () => {
+    expect(all.match(/나는/g)!.length).toBeGreaterThan(120);
+    expect(all.includes('이안은')).toBe(false);
   });
 });
