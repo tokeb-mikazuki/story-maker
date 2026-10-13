@@ -110,7 +110,11 @@ export function DialogHost() {
             {cur.image && <img className="dialog-image" src={cur.image} alt={cur.filename} />}
             {cur.text !== undefined && <textarea className="mono dialog-text" readOnly value={cur.text} onFocus={(e) => e.target.select()} />}
             <p className="muted small">
-              {cur.image ? '저장 버튼이 동작하지 않으면 이미지를 길게 누르거나 오른쪽 클릭해서 저장하세요.' : '저장 버튼이 동작하지 않으면 내용을 복사해 .story.json 파일로 저장하세요.'}
+              {cur.image
+                ? '저장 버튼이 동작하지 않으면 이미지를 길게 누르거나 오른쪽 클릭해서 저장하세요.'
+                : cur.text === undefined && cur.filename.endsWith('.html')
+                  ? '받은 .html 파일을 더블클릭하면 브라우저에서 바로 실행돼요. 인터넷 없이도 열 수 있고, 진행 상황은 그 브라우저에 저장돼요.'
+                  : '저장 버튼이 동작하지 않으면 내용을 복사해 .story.json 파일로 저장하세요.'}
             </p>
             <div className="dialog-actions">
               {cur.text !== undefined && (

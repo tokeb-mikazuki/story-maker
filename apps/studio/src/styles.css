@@ -4127,6 +4127,13 @@ h4.sub {
   align-items: center;
   gap: 12px;
 }
+.prose-rule {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 1.6em auto;
+  width: min(100%, 12em);
+  opacity: 0.9;
+}
 .prose-image {
   display: block;
   width: 100%;

@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "studio": "vite --config apps/studio/vite.config.ts",
-    "studio:build": "vite build --config apps/studio/vite.config.ts && vite build --config apps/studio/vite.config.ts --mode single",
+    "studio:build": "vite build --config apps/studio/vite.config.ts --mode player && vite build --config apps/studio/vite.config.ts && vite build --config apps/studio/vite.config.ts --mode single",
     "studio:preview": "vite preview --config apps/studio/vite.config.ts --port 4173",
     "check": "tsc --noEmit"
   },

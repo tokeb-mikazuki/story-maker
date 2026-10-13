@@ -406,17 +406,22 @@ function packImages(text: string): { text: string; ids: string[] } {
   return { text: packed, ids };
 }
 
-function paragraphs(text: string, ids: string[] = [], assetSrc?: (id?: string) => string | undefined) {
-  return text.split('\n').flatMap((line, li) =>
-    line.split(IMAGE_CHAR).map((part, pi) => {
+/** 하이픈만 있는 줄. 3개 이상이면 얇은 구분선이 된다(글자가 나타나는 중의 한두 개는 아직 그리지 않는다) */
+const RULE_RE = /^-+$/;
+
+export function paragraphs(text: string, ids: string[] = [], assetSrc?: (id?: string) => string | undefined) {
+  return text.split('\n').flatMap((line, li) => {
+    const bare = line.trim();
+    if (RULE_RE.test(bare)) return bare.length >= 3 ? [<hr key={`${li}-rule`} className="prose-rule" />] : [];
+    return line.split(IMAGE_CHAR).map((part, pi) => {
       const key = `${li}-${pi}`;
       if (IMAGE_CHAR.test(part)) {
         const src = assetSrc?.(ids[part.charCodeAt(0) - IMAGE_BASE]);
         return src ? <img key={key} className="prose-image" src={src} alt="" /> : null;
       }
       return part.trim() ? <p key={key}>{part}</p> : null;
-    }),
-  );
+    });
+  });
 }
 
 /** 글자 하나가 나타나는 간격(ms). 더블클릭이나 Enter로 한 번에 띄울 수 있다 */

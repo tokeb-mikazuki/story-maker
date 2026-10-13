@@ -10,6 +10,8 @@ import { projects } from '../../lib/storage';
 import { Thumb } from '../../components/Cover';
 import { exportPackage, imageToDataUrl, pickFile, safeFilename } from '../../lib/files';
 import { PIN_MAX, creditLine, forExport, hashPin, isPin } from '../../lib/remix';
+import { buildStandaloneHtml, standaloneTemplate } from '../../lib/standalone';
+import { offerFile } from '../../lib/dialog';
 import { useEditor } from '../context';
 import { Section, uniqueId } from '../fields';
 import { useIssues } from './Tools';
@@ -35,6 +37,16 @@ export function ExportSection() {
     [pkg.endings.length > 0, '엔딩이 하나 이상 있어요', 'endings'],
   ];
   const ready = checks.every(([ok]) => ok);
+
+  const saveStandalone = async () => {
+    const template = standaloneTemplate();
+    if (!template) {
+      void tell('이 화면에서는 웹 파일을 만들 수 없어요. 배포된 편집기(빌드한 버전)에서 다시 눌러 주세요.');
+      return;
+    }
+    const html = buildStandaloneHtml(pkg, template);
+    void offerFile({ title: `웹 파일 — ${pkg.meta.title}`, filename: `${safeFilename(pkg.meta.title)}.html`, blob: new Blob([html], { type: 'text/html' }) });
+  };
 
   const copy = async () => {
     try {
@@ -95,11 +107,11 @@ export function ExportSection() {
               {copied ? '복사됨' : '클립보드에 복사'}
             </button>
           </div>
-          <div className="export-card is-soon">
+          <div className="export-card">
             <h4>혼자 실행되는 웹 파일</h4>
-            <p>편집기 없이 더블클릭만으로 플레이되는 .html 파일. 준비 중이에요.</p>
-            <button type="button" className="btn" disabled>
-              준비 중
+            <p>편집기 없이 더블클릭만으로 플레이되는 .html 파일. 친구에게 보내거나 어디에든 올릴 수 있어요.</p>
+            <button type="button" className="btn" onClick={saveStandalone}>
+              HTML로 저장
             </button>
           </div>
         </div>
