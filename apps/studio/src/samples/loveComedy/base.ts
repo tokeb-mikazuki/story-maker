@@ -1,7 +1,15 @@
 // 「청화고 연애 금지령」의 틀: 설정, 변수, 아이템, 상태, 스크립트, 규칙, 엔딩, 결산, 도전과제, 에셋.
 
 import type { AchievementDef, AssetDef, EndingDef, EpilogueDef, ItemDef, ScriptDef, Settings, StatusDef, TriggerDef, VariableDef } from '@engine';
-import { IMG_COVER, IMG_GATE, IMG_LIBRARY, IMG_PRESS, IMG_RAIN, IMG_ROOF, IMG_SPORTS, IMG_STAGE, add, end, go, iff, item, note, rec, tagAdd } from './helpers';
+import coverImg from './art/cover.jpg?inline';
+import gateImg from './art/gate.jpg?inline';
+import libraryImg from './art/library.jpg?inline';
+import pressImg from './art/press.jpg?inline';
+import rainImg from './art/rain.jpg?inline';
+import roofImg from './art/roof.jpg?inline';
+import sportsImg from './art/sports.jpg?inline';
+import stageImg from './art/stage.jpg?inline';
+import { add, end, go, iff, item, note, rec, tagAdd } from './helpers';
 
 export const meta = {
   id: 'sample:love-comedy',
@@ -258,15 +266,16 @@ export const achievements: AchievementDef[] = [
   { id: '고백성공', title: '두근두근 성공', icon: '💞', description: '고백에 성공했다', hidden: true, when: "endingSeen('seoyun_love') or endingSeen('hajun_love') or endingSeen('yuna_love') or endingSeen('taeo_love') or endingSeen('seohyeon_love')" },
 ];
 
+/** 작가가 만든 일러스트(JPG). 파일에 직접 담겨 내보내기·사본에서도 그대로 따라간다 */
 export const assets: AssetDef[] = [
-  { id: 'cover', kind: 'image', src: IMG_COVER, alt: '표지(임시 그림)' },
-  { id: 'gate', kind: 'image', src: IMG_GATE, alt: '개학날 교문 앞(임시 그림)' },
-  { id: 'sports', kind: 'image', src: IMG_SPORTS, alt: '체육대회 이인삼각(임시 그림)' },
-  { id: 'rain', kind: 'image', src: IMG_RAIN, alt: '비 오는 하굣길(임시 그림)' },
-  { id: 'roof', kind: 'image', src: IMG_ROOF, alt: '문화제 밤 옥상(임시 그림)' },
-  { id: 'stage', kind: 'image', src: IMG_STAGE, alt: '연극부 무대(임시 그림)' },
-  { id: 'library', kind: 'image', src: IMG_LIBRARY, alt: '비 오는 도서관 창가(임시 그림)' },
-  { id: 'press', kind: 'image', src: IMG_PRESS, alt: '신문부실(임시 그림)' },
+  { id: 'cover', kind: 'image', src: coverImg, alt: '표지: 벚꽃이 흩날리는 옥상, 모두가 서로 눈치를 보는 순간' },
+  { id: 'gate', kind: 'image', src: gateImg, alt: '개학날 교문 앞: 자를 든 서윤, 손을 흔드는 하준, 기둥 위의 마루' },
+  { id: 'sports', kind: 'image', src: sportsImg, alt: '체육대회 이인삼각: 웃으며 달리는 두 사람, 방송석의 하준, 사진을 찍는 서현' },
+  { id: 'rain', kind: 'image', src: rainImg, alt: '비 오는 하굣길: 투명 우산 아래의 두 사람, 빗속의 하준과 마루' },
+  { id: 'roof', kind: 'image', src: roofImg, alt: '문화제 밤 옥상: 불꽃놀이 아래의 주인공과 실루엣, 난간의 하준과 마루' },
+  { id: 'stage', kind: 'image', src: stageImg, alt: '연극부 무대: 스포트라이트 아래의 유나, 객석의 주인공, 커튼 곁의 마루' },
+  { id: 'library', kind: 'image', src: libraryImg, alt: '비 오는 도서관: 책을 읽는 태오, 같은 책으로 뻗는 손, 창턱의 마루' },
+  { id: 'press', kind: 'image', src: pressImg, alt: '신문부실: 신문을 펼쳐 든 서현, 사진이 붙은 코르크판, 졸고 있는 마루' },
 ];
 
 // 아래는 이벤트 파일에서 쓰는 재수출
