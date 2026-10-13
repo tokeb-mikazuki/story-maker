@@ -1,4 +1,4 @@
-import { NAME_STYLES, type NameStyleId, type PhaseDef, type StageDef, nameStyle } from '@engine';
+import { NAME_GENDERS, NAME_STYLES, type NameGender, type NameStyleId, type PhaseDef, type StageDef, nameCandidates } from '@engine';
 import { describeExpr } from '../../lib/exprPrint';
 import { renameRefs } from '../../lib/rename';
 import { Collection } from '../Collection';
@@ -134,8 +134,38 @@ export function SettingsSection() {
             </Tip>
           </div>
         )}
+        <div className="sentence">
+          <span>주인공 성별은</span>
+          <Select
+            value={s.player?.gender ?? ''}
+            onChange={(v) => update((d) => void ((d.settings.player ??= {}).gender = (v || undefined) as NameGender | 'ask' | undefined))}
+            options={[
+              ['', '정하지 않습니다 (주머니 전체에서 뽑기)'],
+              ...NAME_GENDERS.map((g) => [g.id, `${g.word}입니다 (${g.label}만 뽑기)`] as [string, string]),
+              ['ask', '처음 플레이할 때 플레이어에게 묻습니다'],
+            ]}
+          />
+          <Tip>
+            이름 주머니는 남자 / 여자 / 중성적 이름으로 나뉘어 있습니다. 성별을 정하거나 플레이어가 고르면 그 묶음에서만 뽑고, 본문에서는 {'{$성별}'}(남자·여자·중성)로 쓸 수 있습니다. 플레이어가 "상관없음"을 고르면 {'{$성별}'}은 빈 글자입니다.
+          </Tip>
+        </div>
+        {(s.player?.askName || s.player?.randomName) && s.player?.nameStyle && (
+          <div className="sentence">
+            <span>주머니에서 뺄 이름</span>
+            <span className="small-input wide">
+              <ListInput
+                value={s.player?.excludeNames}
+                placeholder="예: 등장인물 이름을 쉼표로"
+                onChange={(v) => update((d) => void ((d.settings.player ??= {}).excludeNames = v))}
+              />
+            </span>
+            <Tip>조연과 이름이 겹치지 않도록 무작위로 뽑지 않을 이름입니다.</Tip>
+          </div>
+        )}
         {s.player?.nameStyle && (
-          <p className="field-hint">예: {nameStyle(s.player.nameStyle)?.names.slice(0, 12).join(', ')} …</p>
+          <p className="field-hint">
+            예: {nameCandidates(s.player.nameStyle, s.player.gender === 'ask' ? undefined : s.player.gender, s.player.excludeNames).slice(0, 12).join(', ')} …
+          </p>
         )}
       </Section>
 

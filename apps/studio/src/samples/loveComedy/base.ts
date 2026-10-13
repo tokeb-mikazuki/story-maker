@@ -26,7 +26,8 @@ export const meta = {
 export const settings: Settings = {
   mode: 'story',
   calendar: { unit: 'none' },
-  player: { askName: true, defaultName: '도윤' },
+  // 주인공 이름은 한국식 남자 이름 주머니에서 뽑는다. 등장인물과 겹치는 이름은 뺀다
+  player: { askName: true, nameStyle: 'korean', gender: 'male', excludeNames: ['하준', '태오', '서윤', '유나', '하린', '서현', '지훈'] },
   stages: [
     {
       id: 'term',

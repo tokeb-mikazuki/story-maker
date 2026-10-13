@@ -1,9 +1,10 @@
 import type { StoryPackage } from '@engine';
 import { useEffect, useState } from 'react';
 import { PageHead } from '../components/Site';
-import { useAccount } from '../lib/auth';
+import { currentAccountId, profileOf, useAccount } from '../lib/auth';
 import { ask, tell } from '../lib/dialog';
 import { exportPackage, newId, parsePackage, pickFile } from '../lib/files';
+import { canRemix, confirmRemix, remixCopy } from '../lib/remix';
 import { go, href } from '../lib/router';
 import { type ProjectRecord, projects, storageIsVolatile } from '../lib/storage';
 import { blankTemplate, lifeTemplate, storyTemplate } from '../lib/templates';
@@ -14,11 +15,14 @@ async function createProject(pkg: StoryPackage): Promise<void> {
   go('edit', pkg.meta.id, pkg.settings.mode === 'life' ? 'flow' : 'flow');
 }
 
-/** 샘플을 내 프로젝트로 복사 */
-export async function copySample(pkg: StoryPackage): Promise<void> {
-  const copy: StoryPackage = JSON.parse(JSON.stringify(pkg));
-  copy.meta.id = newId('p_');
-  copy.meta.title = `${pkg.meta.title} (사본)`;
+/**
+ * 샘플이나 창작마당 작품을 내 프로젝트로 복사. 작가가 편집을 허가했는지, 비밀번호가 있는지 확인한다.
+ * ownerName: 창작마당에 올린 사람의 닉네임
+ */
+export async function copySample(pkg: StoryPackage, ownerName?: string): Promise<void> {
+  if (!(await confirmRemix(pkg))) return;
+  const me = currentAccountId();
+  const copy = remixCopy(pkg, newId('p_'), me ? profileOf(me).nickname : undefined, ownerName);
   await createProject(copy);
 }
 
@@ -151,7 +155,7 @@ export function Studio() {
                 <a className="btn primary" href={`#/play/${encodeURIComponent(s.meta.id)}`}>
                   ▶ 플레이
                 </a>
-                <button className="btn" onClick={() => copySample(s)}>
+                <button className="btn" disabled={!canRemix(s)} title={canRemix(s) ? undefined : '편집이 허가되지 않은 작품이에요'} onClick={() => copySample(s)}>
                   편집기에서 열기
                 </button>
               </div>

@@ -1,4 +1,5 @@
-import type { StoryPackage } from '@engine';
+import { type StoryPackage, nameStyle } from '@engine';
+import { Runner } from '../../../packages/engine/src/runner';
 import { describe, expect, it } from 'vitest';
 import { simulate } from '../../../packages/engine/src/simulate';
 import { validatePackage } from '../../../packages/engine/src/validate';
@@ -15,6 +16,17 @@ function scenario(start: string, initials: Record<string, number>): StoryPackage
 describe('청화고 연애 금지령', () => {
   it('검증 오류와 경고가 없다', () => {
     expect(validatePackage(loveComedy)).toEqual([]);
+  });
+
+  it('주인공 이름은 한국식 남자 이름 주머니에서, 등장인물 이름을 빼고 뽑는다', () => {
+    const cast = loveComedy.settings.player!.excludeNames!;
+    for (let seed = 1; seed < 40; seed++) {
+      const r = new Runner(loveComedy, { seed });
+      expect(r.scene.type).toBe('name');
+      r.setName('');
+      expect(nameStyle('korean')!.male).toContain(r.state.name);
+      expect(cast).not.toContain(r.state.name);
+    }
   });
 
   it('처음부터 끝까지 무작위로 해도 막히거나 오류가 나지 않고, 엔딩이 다양하다', { timeout: 60000 }, () => {

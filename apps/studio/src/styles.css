@@ -2261,6 +2261,12 @@ textarea.json {
   font-size: 16px;
   padding: 8px 12px;
 }
+.gender-pick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 16px;
+}
 
 /* 엔딩 */
 .scene-end .scene-title {
@@ -2652,6 +2658,17 @@ textarea.json {
   font-size: 15px;
   line-height: 1.6;
   white-space: pre-wrap;
+}
+.dialog form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.pin-input {
+  font-size: 22px;
+  letter-spacing: 0.4em;
+  text-align: center;
+  padding: 8px 12px;
 }
 /* 이벤트 찾기 창 */
 .dialog.picker {

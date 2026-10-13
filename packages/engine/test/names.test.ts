@@ -22,10 +22,13 @@ function pkg(): StoryPackage {
 }
 
 describe('이름 주머니', () => {
-  it('여섯 주머니, 각각 이름 약 100개, 중복·공백 없음', () => {
+  it('여섯 주머니, 각각 이름 100개 이상, 남/여/중성으로 나뉘고 중복·공백 없음', () => {
     expect(NAME_STYLES).toHaveLength(6);
     for (const s of NAME_STYLES) {
-      expect(s.names.length, s.id).toBe(100);
+      expect(s.names.length, s.id).toBeGreaterThanOrEqual(100);
+      expect(s.male.length, s.id).toBeGreaterThanOrEqual(30);
+      expect(s.female.length, s.id).toBeGreaterThanOrEqual(30);
+      expect(s.neutral.length, s.id).toBeGreaterThanOrEqual(5);
       expect(new Set(s.names).size, s.id).toBe(s.names.length);
       expect(s.names.every((n) => n.length > 0 && !/\s/.test(n))).toBe(true);
     }
@@ -82,6 +85,39 @@ describe('이름 주머니', () => {
     r.setName('');
     expect(nameStyle('arabic')!.names).toContain(r.state.name);
     expect(r.scene.type).not.toBe('name');
+  });
+
+  it('작가가 정한 성별의 주머니에서만 뽑고, 제외한 이름은 뽑지 않는다', () => {
+    const p = pkg();
+    p.settings.player = { randomName: true, nameStyle: 'korean', gender: 'male', excludeNames: ['하준', '태오'] };
+    for (let seed = 1; seed < 60; seed++) {
+      const r = new Runner(p, { seed });
+      expect(nameStyle('korean')!.male).toContain(r.state.name);
+      expect(['하준', '태오']).not.toContain(r.state.name);
+      expect(r.world.getSys('성별')).toBe('남자');
+    }
+  });
+
+  it('성별을 물으면 플레이어가 고른 성별의 주머니를 쓴다', () => {
+    const p = pkg();
+    p.settings.player = { askName: true, nameStyle: 'japanese', gender: 'ask' };
+    const r = new Runner(p, { seed: 4 });
+    expect(r.scene).toMatchObject({ type: 'name', askName: true, askGender: true });
+    expect(nameStyle('japanese')!.female).toContain(r.rollName('female')!);
+    r.setName('', 'female');
+    expect(nameStyle('japanese')!.female).toContain(r.state.name);
+    expect(r.state.gender).toBe('female');
+    expect(r.world.getSys('성별')).toBe('여자');
+  });
+
+  it('이름이 정해져 있어도 성별만 물을 수 있다', () => {
+    const p = pkg();
+    p.settings.player = { defaultName: '레이', nameStyle: 'japanese', gender: 'ask' };
+    const r = new Runner(p, { seed: 4 });
+    expect(r.scene).toMatchObject({ type: 'name', askName: false, askGender: true });
+    r.setName('무시됨', 'neutral');
+    expect(r.state.name).toBe('레이');
+    expect(r.state.gender).toBe('neutral');
   });
 
   it('없는 이름 주머니는 검증 오류', () => {

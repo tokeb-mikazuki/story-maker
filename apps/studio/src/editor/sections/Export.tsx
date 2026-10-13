@@ -9,6 +9,7 @@ import { href } from '../../lib/router';
 import { projects } from '../../lib/storage';
 import { Thumb } from '../../components/Cover';
 import { exportPackage, imageToDataUrl, pickFile, safeFilename } from '../../lib/files';
+import { PIN_MAX, creditLine, forExport, hashPin, isPin } from '../../lib/remix';
 import { useEditor } from '../context';
 import { Section, uniqueId } from '../fields';
 import { useIssues } from './Tools';
@@ -37,7 +38,7 @@ export function ExportSection() {
 
   const copy = async () => {
     try {
-      await navigator.clipboard.writeText(JSON.stringify(pkg, null, 2));
+      await navigator.clipboard.writeText(JSON.stringify(forExport(pkg), null, 2));
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -51,6 +52,10 @@ export function ExportSection() {
 
       <Section title="표지" topic="share">
         <CoverPicker />
+      </Section>
+
+      <Section title="편집 허가" topic="share">
+        <RemixBox />
       </Section>
 
       <Section title="창작마당에 올리기" topic="share">
@@ -78,6 +83,7 @@ export function ExportSection() {
           <div className="export-card">
             <h4>파일로 저장</h4>
             <p>{safeFilename(pkg.meta.title)}.story.json</p>
+            {pkg.meta.credits?.length ? <p className="muted small">작가 칸: {creditLine(pkg.meta)}</p> : null}
             <button type="button" className="btn primary" onClick={() => exportPackage(pkg)}>
               파일로 저장
             </button>
@@ -99,6 +105,82 @@ export function ExportSection() {
         </div>
       </Section>
     </>
+  );
+}
+
+/** 남이 편집기로 가져가는 것을 허가할지, 허가한다면 비밀번호를 걸지 */
+function RemixBox() {
+  const { pkg, update } = useEditor();
+  const remix = pkg.meta.remix;
+  const [pinOn, setPinOn] = useState(!!remix?.pinHash);
+  const [pin, setPin] = useState('');
+  useEffect(() => setPinOn(!!remix?.pinHash), [remix?.pinHash]);
+  if (pkg.meta.id.startsWith('sample:')) return <p className="muted small">샘플은 누구나 편집기에서 열어 사본을 만들 수 있어요.</p>;
+  const setRemix = (next: typeof remix) => update((d) => void (d.meta.remix = next));
+  const savePin = () => {
+    if (!isPin(pin)) return void tell(`비밀번호는 숫자 1~${PIN_MAX}자리로 정해 주세요.`);
+    setRemix({ allow: true, pinHash: hashPin(pkg.meta.id, pin) });
+    setPin('');
+    void tell('편집기 비밀번호를 걸었어요. 비밀번호는 저장되지 않으니 꼭 기억해 두세요.');
+  };
+  return (
+    <div className="remix-box">
+      <label className="check">
+        <input type="checkbox" checked={!!remix?.allow} onChange={(e) => setRemix(e.target.checked ? { allow: true } : undefined)} />
+        <span>
+          <b>편집 허가</b> — 다른 사람이 이 작품을 편집기에서 열어 사본을 만들 수 있어요
+        </span>
+      </label>
+      {!remix?.allow && <p className="muted small">허가하지 않으면 창작마당 작품 페이지의 「편집기에서 열어 보기」가 꺼져요. 플레이는 누구나 할 수 있어요.</p>}
+      {remix?.allow && (
+        <div className="remix-pin">
+          <label className="check">
+            <input
+              type="checkbox"
+              checked={pinOn}
+              onChange={(e) => {
+                setPinOn(e.target.checked);
+                if (!e.target.checked && remix.pinHash) setRemix({ allow: true });
+              }}
+            />
+            <span>편집기로 옮길 때 비밀번호를 묻기 (숫자, 최대 {PIN_MAX}자리)</span>
+          </label>
+          {pinOn &&
+            (remix.pinHash ? (
+              <p className="small">
+                🔒 비밀번호가 걸려 있어요.{' '}
+                <button type="button" className="link small" onClick={() => setRemix({ allow: true })}>
+                  바꾸기
+                </button>
+              </p>
+            ) : (
+              <form
+                className="remix-pin-form"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  savePin();
+                }}
+              >
+                <input
+                  className="pin-input"
+                  type="password"
+                  inputMode="numeric"
+                  autoComplete="new-password"
+                  maxLength={PIN_MAX}
+                  placeholder="숫자 최대 6자리"
+                  aria-label="편집기 비밀번호"
+                  value={pin}
+                  onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, PIN_MAX))}
+                />
+                <button className="btn primary" disabled={!pin}>
+                  비밀번호 걸기
+                </button>
+              </form>
+            ))}
+        </div>
+      )}
+      <p className="muted small">이미 창작마당에 올렸다면 아래 「새 버전으로 바꾸기」를 눌러야 바뀐 설정이 반영돼요. 사본을 만든 사람이 내보내면 작가 칸에 원작자 이름이 먼저 들어가요.</p>
+    </div>
   );
 }
 

@@ -3,7 +3,7 @@
 
 import type { StoryPackage } from '@engine';
 import { useEffect, useState, useSyncExternalStore } from 'react';
-import { SAMPLES, isFanWork } from '../samples';
+import { SAMPLES } from '../samples';
 import { DEVELOPER } from './auth';
 import { type Rankable } from './ranking';
 import { publishedStore } from './storage';
@@ -95,8 +95,10 @@ const SAMPLE_INFO: Record<string, { genre: string; at: number }> = {
   'sample:last-light': { genre: '미스터리', at: Date.UTC(2026, 9, 3) },
   'sample:ash-pawn': { genre: '판타지', at: Date.UTC(2026, 9, 6) },
   'sample:love-comedy': { genre: '러브코미디', at: Date.UTC(2026, 9, 13) },
+  // 팬 창작 — 공개 배포 빌드(VITE_PUBLIC_RELEASE=1)에서는 SAMPLES에서 빠지므로 여기에도 나오지 않는다
+  'sample:city-984': { genre: 'SF', at: Date.UTC(2026, 9, 13, 12) },
 };
-const officialSamples = () => SAMPLES.filter((s) => !isFanWork(s.meta.id));
+const officialSamples = () => SAMPLES;
 const sampleRecord = (pkg: StoryPackage, i: number): PublishedRecord => {
   const info = SAMPLE_INFO[pkg.meta.id];
   const at = info?.at ?? Date.UTC(2026, 9, 1 + i);

@@ -4,10 +4,11 @@ import type { StoryPackage } from '@engine';
 import { type CSSProperties, type FormEvent, useEffect, useState } from 'react';
 import { WorkCard } from '../components/Shelf';
 import { AuthorLink, RatingText, Stars, Thumb, dateLong, genreTone, timeAgo } from '../components/Site';
-import { useAccount } from '../lib/auth';
+import { profileOf, useAccount } from '../lib/auth';
 import { type WorkSummary, useCommunityVersion, useWorks, worksApi } from '../lib/community';
 import { ask } from '../lib/dialog';
 import { sortWorks } from '../lib/ranking';
+import { canRemix, creditLine } from '../lib/remix';
 import { href } from '../lib/router';
 import { LocalMetaStore } from '../lib/storage';
 import { copySample } from './Studio';
@@ -66,6 +67,7 @@ export function WorkPage({ id }: { id: string }) {
           </div>
           <h1>{work.title}</h1>
           <AuthorLink id={work.ownerId} size={28} />
+          {work.pkg.meta.credits?.length ? <p className="work-credits muted small">제작: {creditLine(work.pkg.meta)}</p> : null}
           {work.description && <p className="work-desc">{work.description}</p>}
           <dl className="work-facts">
             <div>
@@ -96,9 +98,13 @@ export function WorkPage({ id }: { id: string }) {
             <a className="btn primary big" href={href('play', work.id, 'w')}>
               ▶ {record?.runs ? '다시 플레이' : '플레이하기'}
             </a>
-            {work.official && (
-              <button className="btn big" onClick={() => copySample(work.pkg)}>
-                편집기에서 열어 보기
+            {canRemix(work.pkg) ? (
+              <button className="btn big" onClick={() => copySample(work.pkg, profileOf(work.ownerId).nickname)}>
+                {work.pkg.meta.remix?.pinHash ? '🔒 ' : ''}편집기에서 열어 보기
+              </button>
+            ) : (
+              <button className="btn big" disabled title="작가가 편집을 허가하지 않았어요">
+                편집 불가
               </button>
             )}
             {record?.runs ? (

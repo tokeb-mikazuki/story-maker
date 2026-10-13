@@ -1,5 +1,5 @@
 export * from './types';
-export { NAME_STYLES, NAME_STYLE_IDS, nameStyle, pickName, type NameStyle, type NameStyleId } from './names';
+export { NAME_GENDERS, NAME_STYLES, NAME_STYLE_IDS, genderWord, nameCandidates, nameStyle, pickName, type NameGender, type NameStyle, type NameStyleId } from './names';
 export { Calendar } from './calendar';
 export { parseExpr, collectRefs, ExprError, type Node } from './expr/parser';
 export { evaluate, evalBool, evalNum, truthy, PURE_FUNCTIONS, type ExprContext } from './expr/eval';

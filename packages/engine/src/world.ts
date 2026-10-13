@@ -3,6 +3,7 @@
 
 import { Calendar } from './calendar';
 import { type ExprContext, evalBool, evalNum, evaluate, looseEq, toNum, truthy } from './expr/eval';
+import { genderWord } from './names';
 import { renderTemplate } from './text';
 import type {
   AchievementDef,
@@ -774,6 +775,9 @@ export class World implements ExprContext {
       case 'name':
       case '이름':
         return s.name;
+      case 'gender':
+      case '성별':
+        return genderWord(s.gender);
       case 'pending':
         return s.queue.length > 0;
       case 'ending':
@@ -878,7 +882,7 @@ export class World implements ExprContext {
 
 export const SYSTEM_VALUES = [
   'age', '나이', 'year', '년', 'month', '월', 'day', '일', 'date', '날짜', 'now', 'birth', 'turn', '턴',
-  'stage', '단계', 'stageName', '단계이름', 'name', '이름', 'pending', 'ending', '엔딩', 'runs', '회차',
+  'stage', '단계', 'stageName', '단계이름', 'name', '이름', 'gender', '성별', 'pending', 'ending', '엔딩', 'runs', '회차',
   'skill', 'difficulty', 'bonus',
 ];
 

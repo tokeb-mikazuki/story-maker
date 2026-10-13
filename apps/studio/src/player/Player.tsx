@@ -1,4 +1,4 @@
-import { type EndScene, IMAGE_CLOSE, IMAGE_OPEN, type HudView, type MetaStore, Runner, type RunState, type Scene, type StoryPackage, type TraceEntry } from '@engine';
+import { type EndScene, IMAGE_CLOSE, IMAGE_OPEN, type HudView, type MetaStore, type NameGender, Runner, type RunState, type Scene, type StoryPackage, type TraceEntry } from '@engine';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { offerFile } from '../lib/dialog';
 import { safeFilename } from '../lib/files';
@@ -282,7 +282,16 @@ function SceneView({ scene, pkg, runner, assetSrc, act, onRestart, onExit }: Sce
   }, [scene, done, skip, act]);
 
   if (scene.type === 'name')
-    return <NameScene defaultName={scene.defaultName} styled={!!scene.style} onRoll={() => runner.rollName()} onSubmit={(n) => act((r) => r.setName(n))} />;
+    return (
+      <NameScene
+        defaultName={scene.defaultName}
+        styled={!!scene.style}
+        askName={scene.askName}
+        askGender={scene.askGender}
+        onRoll={(g) => runner.rollName(g)}
+        onSubmit={(n, g) => act((r) => r.setName(n, g))}
+      />
+    );
   if (scene.type === 'end') return <EndView end={scene} pkg={pkg} runner={runner} assetSrc={assetSrc} onRestart={onRestart} onExit={onExit} />;
 
   const image = scene.type === 'event' ? assetSrc(scene.image) : scene.type === 'result' ? assetSrc(scene.images[0]) : undefined;
@@ -427,26 +436,73 @@ function useTypewriter(text: string, enabled: boolean): [string, boolean, () => 
   return [done ? text : text.slice(0, n), done, () => setN(text.length)];
 }
 
-function NameScene({ defaultName, styled, onRoll, onSubmit }: { defaultName: string; styled: boolean; onRoll: () => string | undefined; onSubmit: (n: string) => void }) {
+const GENDER_CHOICES: [NameGender | undefined, string][] = [
+  ['male', '남자'],
+  ['female', '여자'],
+  ['neutral', '중성'],
+  [undefined, '상관없음'],
+];
+
+function NameScene({
+  defaultName,
+  styled,
+  askName,
+  askGender,
+  onRoll,
+  onSubmit,
+}: {
+  defaultName: string;
+  styled: boolean;
+  askName: boolean;
+  askGender: boolean;
+  onRoll: (g?: NameGender) => string | undefined;
+  onSubmit: (n: string, g?: NameGender) => void;
+}) {
   const [name, setName] = useState('');
+  const [gender, setGender] = useState<NameGender | undefined>(undefined);
+  const [picked, setPicked] = useState(!askGender);
   return (
     <article className="scene">
-      <h2 className="scene-title">이름</h2>
-      <p className="prose">이 이야기의 주인공을 무엇이라 부를까요?</p>
+      <h2 className="scene-title">{askName ? '이름' : '주인공'}</h2>
+      {askGender && (
+        <>
+          <p className="prose">주인공의 성별을 골라 주세요.{styled && askName ? ' 무작위 이름도 그에 맞춰 뽑습니다.' : ''}</p>
+          <div className="gender-pick" role="radiogroup" aria-label="성별">
+            {GENDER_CHOICES.map(([g, label]) => (
+              <button
+                key={label}
+                type="button"
+                role="radio"
+                aria-checked={picked && gender === g}
+                className={`btn ${picked && gender === g ? 'primary' : ''}`}
+                onClick={() => {
+                  setGender(g);
+                  setPicked(true);
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+      {askName && <p className="prose">이 이야기의 주인공을 무엇이라 부를까요?</p>}
       <form
         className="name-form"
         onSubmit={(e) => {
           e.preventDefault();
-          onSubmit(name);
+          if (picked) onSubmit(name, gender);
         }}
       >
-        <input autoFocus value={name} placeholder={styled ? '비워 두면 무작위' : defaultName} maxLength={20} onChange={(e) => setName(e.target.value)} />
-        {styled && (
-          <button type="button" className="btn" title="이름 주머니에서 뽑기" onClick={() => setName(onRoll() ?? name)}>
+        {askName && <input autoFocus value={name} placeholder={styled ? '비워 두면 무작위' : defaultName} maxLength={20} onChange={(e) => setName(e.target.value)} />}
+        {askName && styled && (
+          <button type="button" className="btn" title="이름 주머니에서 뽑기" onClick={() => setName(onRoll(picked ? gender : undefined) ?? name)}>
             무작위
           </button>
         )}
-        <button className="btn primary">시작</button>
+        <button className="btn primary" disabled={!picked} title={picked ? undefined : '성별을 먼저 골라 주세요'}>
+          시작
+        </button>
       </form>
     </article>
   );

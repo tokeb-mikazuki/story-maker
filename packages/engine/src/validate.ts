@@ -354,6 +354,8 @@ export function validatePackage(pkg: StoryPackage): Issue[] {
     if (id && !NAME_STYLE_IDS.includes(id as never)) err(at, `없는 이름 주머니 '${id}'`);
   };
   knownStyle(pkg.settings.player?.nameStyle, 'settings/player');
+  const g = pkg.settings.player?.gender;
+  if (g && !['male', 'female', 'neutral', 'ask'].includes(g)) err('settings/player', `알 수 없는 성별 '${g}'`);
   pkg.origins?.list.forEach((o) => {
     const at = `origins/${o.id}`;
     knownStyle(o.nameStyle, at);

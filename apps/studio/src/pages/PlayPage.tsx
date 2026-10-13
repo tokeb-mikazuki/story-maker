@@ -5,7 +5,7 @@ import { ask } from '../lib/dialog';
 import { href } from '../lib/router';
 import { LocalMetaStore, projects, saves } from '../lib/storage';
 import { Player } from '../player/Player';
-import { SAMPLES, isFanWork } from '../samples';
+import { SAMPLES } from '../samples';
 
 /** published: 창작마당에 올라간 사본을 플레이(#/play/id/w). 아니면 샘플 → 내 작업 → 창작마당 순으로 찾는다 */
 export function PlayPage({ id, published }: { id: string; published?: boolean }) {
@@ -13,7 +13,7 @@ export function PlayPage({ id, published }: { id: string; published?: boolean })
   useEffect(() => {
     const sample = SAMPLES.find((s) => s.meta.id === id);
     const fromGallery = () => worksApi.get(id).then((w) => setFound(w ? { pkg: w.pkg, listed: true } : null));
-    if (sample) setFound({ pkg: sample, listed: !isFanWork(sample.meta.id) });
+    if (sample) setFound({ pkg: sample, listed: true });
     else if (published) void fromGallery();
     else
       projects.get(id).then((r) => {

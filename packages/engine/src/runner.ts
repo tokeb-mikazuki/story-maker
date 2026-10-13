@@ -22,7 +22,7 @@ import type {
   StoryPackage,
   Value,
 } from './types';
-import { pickName } from './names';
+import { pickName, type NameGender } from './names';
 import { MAX_CHOICES } from './types';
 import { EngineError, PackageIndex, type TraceEntry, World, emptyMeta } from './world';
 
@@ -99,13 +99,14 @@ export class Runner {
     this.world.fire('start');
     const player = pkg.settings.player;
     this.state.nameStyle = player?.nameStyle;
+    if (player?.gender && player.gender !== 'ask') this.state.gender = player.gender;
     // 출신마다 이름 주머니가 다르면 출신을 먼저 정하고 이름을 나중에 정한다
     const nameAfterOrigin = (pkg.origins?.list ?? []).some((o) => o.nameStyle);
-    if (opts.name === undefined && (player?.askName || player?.randomName)) {
+    if (opts.name === undefined && (player?.askName || player?.randomName || player?.gender === 'ask')) {
       if (nameAfterOrigin) {
         this.state.namePending = true;
         this.scene = this.beginOrigins();
-      } else if (player.askName) {
+      } else if (this.asksAtStart) {
         this.state.current = { type: 'name' };
         this.scene = this.nameScene();
       } else {
@@ -132,20 +133,33 @@ export class Runner {
     return !!(p?.askName || p?.randomName || (p?.defaultName && p.defaultName !== '당신'));
   }
 
+  /** 이름이나 성별을 플레이어에게 묻는 화면을 띄우는지 */
+  private get asksAtStart(): boolean {
+    const p = this.pkg.settings.player;
+    return !!(p?.askName || p?.gender === 'ask');
+  }
+
   private nameScene(): Scene {
-    return { type: 'name', defaultName: this.state.name, style: this.state.nameStyle };
+    const p = this.pkg.settings.player;
+    return {
+      type: 'name',
+      defaultName: this.state.name,
+      style: this.state.nameStyle,
+      askName: !!p?.askName,
+      askGender: p?.gender === 'ask',
+    };
   }
 
   /** 이름 주머니에서 이름을 뽑아 정한다(시드 난수). 주머니가 없으면 그대로 둔다 */
   private drawName(): string | undefined {
-    const name = pickName(this.state.nameStyle, () => this.world.random());
+    const name = pickName(this.state.nameStyle, () => this.world.random(), this.state.gender, this.pkg.settings.player?.excludeNames);
     if (name) this.state.name = name;
     return name;
   }
 
   /** 이름 입력 화면의 "무작위" 버튼용. 게임 난수에는 영향을 주지 않는다 */
-  rollName(): string | undefined {
-    return pickName(this.state.nameStyle);
+  rollName(gender?: NameGender): string | undefined {
+    return pickName(this.state.nameStyle, Math.random, gender ?? this.state.gender, this.pkg.settings.player?.excludeNames);
   }
 
   save(): RunState {
@@ -154,11 +168,14 @@ export class Runner {
 
   // ───────────────────────── 입력 ─────────────────────────
 
-  setName(name: string): void {
+  /** gender는 성별을 묻는 화면에서만 쓴다(undefined = 상관없음) */
+  setName(name: string, gender?: NameGender): void {
     if (this.scene.type !== 'name') return;
-    const typed = name.trim();
+    if (this.scene.askGender) this.state.gender = gender;
+    const typed = this.scene.askName ? name.trim() : '';
+    const p = this.pkg.settings.player;
     if (typed) this.state.name = typed;
-    else this.drawName();
+    else if (p?.askName || p?.randomName) this.drawName();
     this.state.current = undefined;
     if (this.state.namePending) {
       // 출신을 이미 정한 뒤의 이름 입력이었다
@@ -299,12 +316,12 @@ export class Runner {
 
   private afterOrigin(): Scene {
     if (this.state.namePending) {
-      if (this.pkg.settings.player?.askName) {
+      if (this.asksAtStart) {
         this.state.current = { type: 'name' };
         return (this.scene = this.nameScene());
       }
       this.state.namePending = false;
-      this.drawName();
+      if (this.pkg.settings.player?.askName || this.pkg.settings.player?.randomName) this.drawName();
     }
     const start = this.pkg.settings.start;
     if (start) this.state.queue.push(start);

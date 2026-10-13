@@ -7,7 +7,7 @@ export type Expr = string;
 export type NumOrExpr = number | Expr;
 export type Value = number | string | boolean;
 
-import type { NameStyleId } from './names';
+import type { NameGender, NameStyleId } from './names';
 
 export const FORMAT_VERSION = 'ifb/1';
 
@@ -44,6 +44,10 @@ export interface PackageMeta {
   tags?: string[];
   /** 에셋 ID */
   cover?: string;
+  /** 남이 편집기로 가져가도 되는지. 없으면 허가하지 않음. pinHash는 숫자 비밀번호의 해시 */
+  remix?: { allow: boolean; pinHash?: string };
+  /** 사본을 만들 때 쌓이는 원작자 목록(먼저 만든 사람부터) */
+  credits?: string[];
 }
 
 // ───────────────────────── 설정 ─────────────────────────
@@ -61,6 +65,10 @@ export interface Settings {
     nameStyle?: NameStyleId;
     /** 묻지 않고 시작할 때 이름 주머니에서 알아서 뽑는다 (askName이 켜져 있으면 묻는 쪽이 우선) */
     randomName?: boolean;
+    /** 이름 주머니의 성별. ask면 처음 플레이할 때 플레이어에게 묻는다. 없으면 구분 없이 뽑는다 */
+    gender?: NameGender | 'ask';
+    /** 무작위로 뽑지 않을 이름(등장인물과 겹치지 않게) */
+    excludeNames?: string[];
   };
   /** 첫 턴 시작 전에 보여줄 이벤트(도입부) */
   start?: string;
@@ -511,6 +519,8 @@ export interface RunState {
   nameStyle?: NameStyleId;
   /** 출신을 정한 뒤에 이름을 정해야 한다 */
   namePending?: boolean;
+  /** 주인공 성별(이름 주머니와 {$성별}). 없으면 정하지 않음 */
+  gender?: NameGender;
   /** 시간 인덱스(calendar.unit 단위) */
   now: number;
   birth: number;
@@ -580,7 +590,8 @@ export interface EndScene {
 }
 
 export type Scene =
-  | { type: 'name'; defaultName: string; style?: NameStyleId }
+  /** askName이 false면 성별만 묻는다 */
+  | { type: 'name'; defaultName: string; style?: NameStyleId; askName: boolean; askGender: boolean }
   | { type: 'origin'; title?: string; text: string; origins: OriginDef[] }
   | { type: 'event'; id: string; title?: string; text: string; image?: string; choices: ChoiceView[]; notes?: string[] }
   | { type: 'menu'; title?: string; text: string; choices: ChoiceView[] }

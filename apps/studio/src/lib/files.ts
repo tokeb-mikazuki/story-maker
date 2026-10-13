@@ -1,5 +1,6 @@
 import { FORMAT_VERSION, type StoryPackage } from '@engine';
 import { offerFile } from './dialog';
+import { forExport } from './remix';
 
 interface DownloadsApi {
   save(req: { filename: string; data: Blob }): Promise<unknown>;
@@ -35,8 +36,9 @@ export function safeFilename(name: string): string {
   return name.replace(/[\\/:*?"<>|]+/g, '_').trim() || 'story';
 }
 
+/** 사본이면 작가 칸에 원작자를 앞세워 내보낸다("원작자, 나") */
 export function exportPackage(pkg: StoryPackage): void {
-  const text = JSON.stringify(pkg, null, 2);
+  const text = JSON.stringify(forExport(pkg), null, 2);
   const blob = new Blob([text], { type: 'application/json' });
   void offerFile({ title: `내보내기 — ${pkg.meta.title}`, filename: `${safeFilename(pkg.meta.title)}.story.json`, blob, text });
 }

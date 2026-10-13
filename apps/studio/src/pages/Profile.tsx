@@ -22,7 +22,7 @@ import { ask, tell } from '../lib/dialog';
 import { sortWorks } from '../lib/ranking';
 import { go, href } from '../lib/router';
 import { type ProjectRecord, LocalMetaStore, projects } from '../lib/storage';
-import { SAMPLES, isFanWork } from '../samples';
+import { SAMPLES } from '../samples';
 
 function NeedLogin() {
   return (
@@ -175,7 +175,7 @@ export function MyPage() {
   // 이 브라우저의 플레이 기록(작품별 회차·본 엔딩)
   const metaStore = new LocalMetaStore();
   const titles = new Map<string, StoryPackage['meta']>();
-  for (const s of SAMPLES) if (!isFanWork(s.meta.id)) titles.set(s.meta.id, s.meta);
+  for (const s of SAMPLES) titles.set(s.meta.id, s.meta);
   for (const p of list ?? []) titles.set(p.id, p.pkg.meta);
   for (const w of all ?? []) if (!titles.has(w.id)) titles.set(w.id, { id: w.id, title: w.title });
   const played = [...titles.values()]
