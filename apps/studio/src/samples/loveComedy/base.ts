@@ -3,6 +3,7 @@
 import type { AchievementDef, AssetDef, EndingDef, EpilogueDef, ItemDef, ScriptDef, Settings, StatusDef, TriggerDef, VariableDef } from '@engine';
 import coverImg from './art/cover.jpg?inline';
 import gateImg from './art/gate.jpg?inline';
+import harinImg from './art/harin.jpg?inline';
 import libraryImg from './art/library.jpg?inline';
 import pressImg from './art/press.jpg?inline';
 import rainImg from './art/rain.jpg?inline';
@@ -216,7 +217,7 @@ export const triggers: TriggerDef[] = [
 
 export const endings: EndingDef[] = [
   { id: 'seoyun_love', title: '풍기 위반 1호', kind: 'good', text: '{image roof}\n"…규칙을 어긴 건 처음입니다."\n서윤은 팔의 완장을 천천히 풀어 당신 손목에 채웠습니다. 풍기위원 완장이 어울리지 않게 헐렁합니다.\n"그러니까 책임지세요. 제 첫 번째 위반 사항을."\n이듬해 3월, 교칙 제47조는 「교내 이성교제를 금한다. 단, 학생회 부회장의 서명이 있는 경우는 예외로 한다」로 개정되었습니다. 서명란에는 아직 한 사람 이름만 올라 있습니다.' },
-  { id: 'harin_love', title: '옆집 창문, 불 켜진 두 번째 방', kind: 'good', text: '{image roof}\n옥상 난간 위에서 하린이 도시락통을 끌어안고 서 있었습니다. 다 식은 계란말이가 들어 있는 통입니다. 아침마다 깨우러 오던 사람이, 오늘은 먼저 와서 기다리고 있었습니다.\n"…있잖아, 나 어릴 때부터 옆집 창문만 보고 살았거든. 네 방 불이 켜져 있으면 안심이 되고, 꺼져 있으면 괜히 걱정되고." 하린이 숨을 한 번 들이쉬었다가 웃었습니다. "이제 그 창문 말고, 옆에서 보면 안 돼?"\n다음 날 아침, 현관 벨이 울렸습니다. 늘 같은 시간, 늘 같은 얼굴인데 이상하게 처음 보는 사람 같았습니다. 손을 맞잡은 채 같이 걸은 등굣길에서 하준이 멀찍이 방송용 마이크를 들었다가 슬며시 내려놓았습니다. 이번만큼은 방송하지 않기로 한 모양입니다.' },
+  { id: 'harin_love', title: '옆집 창문, 불 켜진 두 번째 방', kind: 'good', text: '{image harin}\n옥상 난간 위에서 하린이 도시락통을 끌어안고 서 있었습니다. 다 식은 계란말이가 들어 있는 통입니다. 아침마다 깨우러 오던 사람이, 오늘은 먼저 와서 기다리고 있었습니다.\n"…있잖아, 나 어릴 때부터 옆집 창문만 보고 살았거든. 네 방 불이 켜져 있으면 안심이 되고, 꺼져 있으면 괜히 걱정되고." 하린이 숨을 한 번 들이쉬었다가 웃었습니다. "이제 그 창문 말고, 옆에서 보면 안 돼?"\n다음 날 아침, 현관 벨이 울렸습니다. 늘 같은 시간, 늘 같은 얼굴인데 이상하게 처음 보는 사람 같았습니다. 손을 맞잡은 채 같이 걸은 등굣길에서 하준이 멀찍이 방송용 마이크를 들었다가 슬며시 내려놓았습니다. 이번만큼은 방송하지 않기로 한 모양입니다.' },
   { id: 'yuna_love', title: '커튼콜은 두 사람에게', kind: 'good', text: '{image stage}\n유나는 무대 가운데서 대사를 멈추고 객석의 당신을 똑바로 바라보았습니다. 대본에 없는 대사가 이어졌습니다.\n"주연은 한 번도 정해진 적 없었어요. 오늘 제가 정했습니다."\n막이 내리고도 박수는 한참 이어졌습니다. 연극부 단체 사진 속, 유나의 왕관 핀이 당신의 머리에 꽂혀 있습니다. 상대역 1은 이제 정식 이름이 되었습니다.' },
   { id: 'bros', title: '사나이들의 문화제', kind: 'neutral', text: '{image roof}\n문화제가 끝난 옥상에서 하준이 캔 콜라를 던졌습니다. 태오 선배는 말없이 책 대신 캔을 받아 들었고, 지훈은 컵라면 세 개를 들고 나타났습니다.\n"야, 이번 학기 우리 셋이 네 연애사를 제일 많이 들었다." "…결과는 별로 못 봤지만." "그래도 이게 제일 길게 남는 법이야."\n하준은 방송 마이크를 쥐고 마지막 곡을 틀었습니다. 연애는 잠시 미뤄 두기로 한 네 사람이 낡은 옥상 난간에 나란히 기대어 불꽃놀이를 보았습니다. 이 우정이 평생 가리라는 건 누구도 입 밖에 내지 않았지만 모두가 알았습니다.' },
   { id: 'seohyeon_love', title: '특종: 우리 둘', kind: 'good', text: '{image press}\n다음 날 청화고 교지 1면. 사진도 헤드라인도 서현이 직접 썼습니다.\n〈특종〉 기자, 취재원과 사랑에 빠지다.\n"기자는 중립이어야 하는데… 이건 도저히 중립이 안 되더라고요."\n서현은 카메라를 내려놓고 수첩의 마지막 장을 넘겼습니다. 거기엔 당신 이름 하나만 수십 번 지워지고 다시 쓰여 있었습니다.' },
@@ -289,11 +290,12 @@ export const achievements: AchievementDef[] = [
 
 /** 작가가 만든 일러스트(JPG). 파일에 직접 담겨 내보내기·사본에서도 그대로 따라간다 */
 export const assets: AssetDef[] = [
-  { id: 'cover', kind: 'image', src: coverImg, alt: '표지: 벚꽃이 흩날리는 옥상, 모두가 서로 눈치를 보는 순간' },
+  { id: 'cover', kind: 'image', src: coverImg, alt: '표지: 벚꽃이 흩날리는 옥상, 주인공을 둘러싼 네 히로인' },
   { id: 'gate', kind: 'image', src: gateImg, alt: '개학날 교문 앞: 자를 든 서윤, 손을 흔드는 하준, 기둥 위의 마루' },
   { id: 'sports', kind: 'image', src: sportsImg, alt: '체육대회 이인삼각: 웃으며 달리는 두 사람, 방송석의 하준, 사진을 찍는 서현' },
   { id: 'rain', kind: 'image', src: rainImg, alt: '비 오는 하굣길: 투명 우산 아래의 두 사람, 빗속의 하준과 마루' },
   { id: 'roof', kind: 'image', src: roofImg, alt: '문화제 밤 옥상: 불꽃놀이 아래의 주인공과 실루엣, 난간의 하준과 마루' },
+  { id: 'harin', kind: 'image', src: harinImg, alt: '아침의 초인종: 도시락통을 든 하린, 현관 앞의 주인공, 담장 위의 마루' },
   { id: 'stage', kind: 'image', src: stageImg, alt: '연극부 무대: 스포트라이트 아래의 유나, 객석의 주인공, 커튼 곁의 마루' },
   { id: 'library', kind: 'image', src: libraryImg, alt: '비 오는 도서관: 책을 읽는 태오, 같은 책으로 뻗는 손, 창턱의 마루' },
   { id: 'press', kind: 'image', src: pressImg, alt: '신문부실: 신문을 펼쳐 든 서현, 사진이 붙은 코르크판, 졸고 있는 마루' },
