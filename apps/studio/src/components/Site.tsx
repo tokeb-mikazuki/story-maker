@@ -5,6 +5,7 @@ import { type PublicProfile, isGoneProfile, profileOf } from '../lib/auth';
 import type { WorkSummary } from '../lib/community';
 import { href } from '../lib/router';
 import { AccountMenu, Avatar } from './Account';
+import { BookCover, genreTone } from './Cover';
 
 const NAV: [page: string, label: string][] = [
   ['', '홈'],
@@ -126,43 +127,9 @@ export function RatingText({ w }: { w: Pick<WorkSummary, 'avg' | 'ratingCount'> 
   );
 }
 
-// ───────────────────────── 작품 카드(책 표지) ─────────────────────────
+// ───────────────────────── 작품 카드 ─────────────────────────
 
-const GENRE_TONE: Record<string, string> = {
-  판타지: '#5a4a7a',
-  미스터리: '#2f4858',
-  로맨스: '#9a4a5a',
-  SF: '#2d5a74',
-  호러: '#3a2a2a',
-  드라마: '#7a5a3a',
-  모험: '#4a6a3a',
-  일상: '#8a7a4a',
-  역사: '#6a4a2a',
-  코미디: '#b0703a',
-  기타: '#5c544a',
-};
-export const genreTone = (g: string) => GENRE_TONE[g] ?? GENRE_TONE.기타;
-
-export function BookCover({ w, size = 'md' }: { w: Pick<WorkSummary, 'title' | 'genre' | 'cover' | 'ownerId' | 'mode'>; size?: 'md' | 'lg' }) {
-  if (w.cover)
-    return (
-      <div className={`book-cover has-image ${size}`}>
-        <img src={w.cover} alt="" />
-      </div>
-    );
-  return (
-    <div className={`book-cover ${size}`} style={{ '--tone': genreTone(w.genre) } as CSSProperties}>
-      <div className="book-frame">
-        <span className="book-genre">{w.genre}</span>
-        <span className="book-title">{w.title}</span>
-        <span className="book-rule" aria-hidden>
-          ❦
-        </span>
-        <span className="book-author">{nicknameOf(w.ownerId)}</span>
-      </div>
-    </div>
-  );
-}
+export { BookCover, genreTone } from './Cover';
 
 export function WorkCard({ w }: { w: WorkSummary }) {
   const link = href('works', w.id);

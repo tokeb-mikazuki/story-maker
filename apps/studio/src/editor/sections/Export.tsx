@@ -7,9 +7,10 @@ import { ask, tell } from '../../lib/dialog';
 import { GENRES } from '../../lib/ranking';
 import { href } from '../../lib/router';
 import { projects } from '../../lib/storage';
-import { exportPackage, safeFilename } from '../../lib/files';
+import { BookCover } from '../../components/Cover';
+import { exportPackage, imageToDataUrl, pickFile, safeFilename } from '../../lib/files';
 import { useEditor } from '../context';
-import { Section } from '../fields';
+import { Section, uniqueId } from '../fields';
 import { useIssues } from './Tools';
 
 function sizeText(bytes: number): string {
@@ -47,6 +48,10 @@ export function ExportSection() {
   return (
     <>
       <p className="intro">완성한 이야기를 어디로 보낼지 고르세요. 작업 내용은 자동으로 저장되지만, 이 브라우저 밖으로 옮기려면 여기서 내보내야 해요.</p>
+
+      <Section title="표지" topic="share">
+        <CoverPicker />
+      </Section>
 
       <Section title="창작마당에 올리기" topic="share">
         <p className="muted small">다른 사람이 내 이야기를 찾아 플레이할 수 있게 공개하는 곳이에요.</p>
@@ -197,6 +202,78 @@ function PublishBox({ ready }: { ready: boolean }) {
         <span className="muted small">
           {!ready ? '위 항목을 먼저 갖춰 주세요.' : !genre ? '장르를 골라 주세요.' : pub ? `공개 중 · 마지막 반영 ${new Date(pub.updatedAt).toLocaleString('ko-KR')}` : '올리면 누구나 플레이하고 별점을 남길 수 있어요.'}
         </span>
+      </div>
+    </div>
+  );
+}
+
+/** 창작마당·타이틀 화면에 쓰는 표지(meta.cover). 새로 올리거나 이미 올린 이미지에서 고른다 */
+function CoverPicker() {
+  const { pkg, update } = useEditor();
+  const images = (pkg.assets ?? []).filter((a) => a.kind === 'image');
+  const current = pkg.meta.cover ? images.find((a) => a.id === pkg.meta.cover) : undefined;
+  const [busy, setBusy] = useState(false);
+
+  const upload = async () => {
+    const file = await pickFile('image/*');
+    if (!file) return;
+    setBusy(true);
+    try {
+      const src = await imageToDataUrl(file, 1400);
+      update((d) => {
+        const id = uniqueId('표지', (d.assets ?? []).map((a) => a.id));
+        (d.assets ??= []).push({ id, kind: 'image', src, alt: '표지' });
+        d.meta.cover = id;
+      });
+    } catch {
+      void tell('이미지를 읽지 못했어요. 다른 파일로 해 보세요.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="cover-picker">
+      <div className="cover-preview">
+        <BookCover w={{ id: pkg.meta.id, genre: '기타', cover: current?.src }} />
+        <small className="muted">{current ? `이미지 ID: ${current.id}` : '표지 없음 · 기본 무늬'}</small>
+      </div>
+      <div className="cover-controls">
+        <p className="muted small">
+          창작마당 목록과 작품 화면, 플레이 첫 화면에 깔리는 그림이에요. 제목은 표지 아래에 따로 표시되니 그림에 넣지 않아도 돼요. 세로 2:3 비율(예: 1200×1800)이 가장 잘 맞고, 다른 비율은 가운데를 기준으로 잘라서 채웁니다.
+        </p>
+        <div className="export-actions">
+          <button type="button" className="btn primary" onClick={upload} disabled={busy}>
+            {busy ? '올리는 중…' : current ? '새 이미지로 바꾸기' : '표지 이미지 올리기'}
+          </button>
+          {current && (
+            <button type="button" className="btn" onClick={() => update((d) => void delete d.meta.cover)}>
+              표지 빼기
+            </button>
+          )}
+        </div>
+        {images.length > 0 && (
+          <>
+            <h4>이미 올린 이미지에서 고르기</h4>
+            <div className="cover-choices" role="radiogroup" aria-label="표지로 쓸 이미지">
+              {images.map((a) => (
+                <button
+                  key={a.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={a.id === pkg.meta.cover}
+                  className={a.id === pkg.meta.cover ? 'on' : ''}
+                  onClick={() => update((d) => void (d.meta.cover = a.id))}
+                  title={a.alt ? `${a.alt} (${a.id})` : a.id}
+                >
+                  <img src={a.src} alt="" />
+                  <span>{a.id}</span>
+                </button>
+              ))}
+            </div>
+          </>
+        )}
+        <p className="muted small">이미 창작마당에 올린 작품이라면, 표지를 바꾼 뒤 아래의 「새 버전으로 바꾸기」를 눌러야 반영돼요.</p>
       </div>
     </div>
   );

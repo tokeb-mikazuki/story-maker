@@ -114,7 +114,7 @@ export function Landing() {
               {latest.slice(0, 5).map((w) => (
                 <li key={w.id}>
                   <a className="latest-cover" href={href('works', w.id)} tabIndex={-1} aria-hidden>
-                    <BookCover w={w} />
+                    <BookCover w={w} size="sm" />
                   </a>
                   <div>
                     <a className="latest-title" href={href('works', w.id)}>
