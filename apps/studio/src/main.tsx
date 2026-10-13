@@ -1,5 +1,6 @@
 import { StrictMode, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { SiteLayout } from './components/Site';
 import { Editor } from './editor/Editor';
 import { DialogHost } from './lib/dialog';
@@ -36,12 +37,25 @@ function Routes() {
   useEffect(() => window.scrollTo(0, 0), [scrollKey]);
 
   // 편집기·플레이어는 사이트 틀 없이 화면 전체를 쓴다
-  if (page === 'edit' && id) return <Editor key={id} projectId={id} section={section} item={item} />;
-  if (page === 'play' && id) return <PlayPage key={id} id={id} published={section === 'w'} />;
+  if (page === 'edit' && id)
+    return (
+      <ErrorBoundary resetKey={`edit/${id}`}>
+        <Editor key={id} projectId={id} section={section} item={item} />
+      </ErrorBoundary>
+    );
+  if (page === 'play' && id)
+    return (
+      <ErrorBoundary resetKey={route.join('/')}>
+        <PlayPage key={id} id={id} published={section === 'w'} />
+      </ErrorBoundary>
+    );
 
+  // 틀(상단 메뉴)은 바깥에 둬서, 안쪽 화면이 깨져도 메뉴로 다른 곳에 갈 수 있다
   return (
     <SiteLayout page={NAV_OF[page] ?? (page === '' ? '' : '-')}>
-      <SitePage page={page} id={id} section={section} />
+      <ErrorBoundary resetKey={route.join('/')}>
+        <SitePage page={page} id={id} section={section} />
+      </ErrorBoundary>
     </SiteLayout>
   );
 }
